@@ -4,7 +4,7 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "/mnt/hdd0"
+config["data_config"]["dst_folder"] = "./"
 config["data_config"]["object_type"] = "human"
 
 config["light_config"] = dict()

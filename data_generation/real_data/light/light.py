@@ -15,6 +15,6 @@ class Light():
 
     def light_for_laser(self):
 
-        laser_brightness = self.config["light_brightness"]
+        laser_brightness = self.config["laser_brightness"]
         # set the lights to the specified brightness
         pass

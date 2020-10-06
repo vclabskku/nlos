@@ -1,4 +1,6 @@
 
+import numpy as np
+
 class Depth():
 
     def __init__(self, config):

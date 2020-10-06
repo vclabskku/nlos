@@ -7,4 +7,4 @@ class Turtlebot():
 
     def move(self):
 
-        return True
+        return True, [0.0, 0.0]

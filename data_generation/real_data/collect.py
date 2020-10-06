@@ -93,7 +93,7 @@ class Collector():
                 for cmos_index, reflection_image in enumerate(reflection_images):
                     reflection_image_path = \
                         os.path.join(this_data_folder, "reflection_image_Gx{:02d}_Gy{:02d}_C{:02d}.png".format(
-                            galvanometer_position[0], galvanometer_position[1], cmos_index))
+                            galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
                     cv2.imwrite(reflection_image_path, reflection_image)
 
             data_json = dict()

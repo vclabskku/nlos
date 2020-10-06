@@ -30,4 +30,5 @@ config["galvanometer_config"] = dict()
 config["galvanometer_config"]["num_grid"] = 7
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
-Collector.collect(config)
+collector = Collector(config)
+collector.collect()

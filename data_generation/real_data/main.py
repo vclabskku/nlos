@@ -1,4 +1,3 @@
-
 from data_generation.real_data.collect import Collector
 
 config = dict()
@@ -37,6 +36,16 @@ config["laser_config"]["laser3_power"] = 100
 config["galvanometer_config"] = dict()
 config["galvanometer_config"]["num_grid"] = 7
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
+
+#config for light
+config["LIGHT"] = dict()
+config["LIGHT"]["BULB_LIST"] = [""]
+
+#config for detector
+config["DETECTOR"] = dict()
+config["DETECTOR"]["DETECTRON_ROOT"] = "detectron2"
+config["DETECTOR"]["CONFIG_FILE"] = "configs/novel/retinanet_R_50_FPN_1x.yaml"
+config["DETECTOR"]["CHECK_POINT"] = "output/novel/model_0004999.pth"
 
 collector = Collector(config)
 collector.collect()

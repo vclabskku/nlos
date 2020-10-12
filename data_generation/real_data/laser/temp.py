@@ -3,28 +3,12 @@ import os
 class Laser():
     def __init__(self, config):
         self.config = config
-
-    def turn_on(self, laser_number):
-        result = os.system('./laser_on {} {} {}'.format(int(self.config['cport_nr']), int(self.config['bdrate']), int(laser_number)))
+    def change_power(self, laser_power1, laser_power2, laser_power3):
+        result = os.system(
+            'C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/laser/laser_power2/Debug/laser_power2.exe {} {} {} {} {}'.format(
+                int(self.config['cport_nr']), int(self.config['bdrate']), int(laser_power1), int(laser_power2), int(laser_power3)))
         return result
-
-    def turn_off(self, laser_number):
-        result = os.system('./laser_off {} {} {}'.format(int(self.config['cport_nr']), int(self.config['bdrate']), int(laser_number)))
-        return result
-
-    def change_power(self, laser_number, laser_power):
-        result = os.system('./laser_power {] {} {} {}'.format(int(self.config['cport_nr']), int(self.config['bdrate']), int(laser_number), int(laser_power)))
-        return result
-
 
 config = dict(cport_nr=2, bdrate=9600)
 laser = Laser(config)
-temp = laser.turn_on(1)
-if temp != 0:
-    print("fail")
-    exit()
-else:
-    temp = laser.change_power(1, 10)
-    if temp !=0:
-        print("fail")
-        exit()
+temp = laser.change_power(20, 20, 20)

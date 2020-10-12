@@ -39,11 +39,14 @@ config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
 #config for light
 config["LIGHT"] = dict()
-config["LIGHT"]["BULB_LIST"] = [""]
+#¿Þ¾Õ, ¿À¾Õ, ¿ÞµÚ, ¿ÀµÚ
+config["LIGHT"]["BULB_LIST"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
+config["LIGHT"]["gt_brightness"] = 100
+config["LIGHT"]["laser_brightness"] = 1
 
 #config for detector
 config["DETECTOR"] = dict()
-config["DETECTOR"]["DETECTRON_ROOT"] = "detectron2"
+config["DETECTOR"]["DETECTRON_ROOT"] = "C:\Users\vclab\PycharmProjects\detectron2"
 config["DETECTOR"]["CONFIG_FILE"] = "configs/novel/retinanet_R_50_FPN_1x.yaml"
 config["DETECTOR"]["CHECK_POINT"] = "output/novel/model_0004999.pth"
 

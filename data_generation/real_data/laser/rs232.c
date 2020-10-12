@@ -31,7 +31,7 @@
 
 
 #include "rs232.h"
-
+#include "winsock.h"
 
 #if defined(__linux__) || defined(__FreeBSD__)   /* Linux & FreeBSD */
 
@@ -55,6 +55,7 @@ const char *comports[RS232_PORTNR]={"/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev
 
 int RS232_OpenComport(int comport_number, int baudrate, const char *mode, int flowctrl)
 {
+  printf("%s\n",comports[0]);
   int baudr,
       status;
 
@@ -707,8 +708,7 @@ int RS232_SendByte(int comport_number, unsigned char byte)
 {
   int n;
 
-  WriteFile(Cport[comport_number], &byte, 1, (LPDWORD)((void *)&n), NULL);
-
+  int temp = WriteFile(Cport[comport_number], &byte, 1, (LPDWORD)((void *)&n), NULL);
   if(n<0)  return(1);
 
   return(0);
@@ -719,11 +719,14 @@ int RS232_SendBuf(int comport_number, unsigned char *buf, int size)
 {
   int n;
 
+  for (int i=0; i<size; i++){
+    printf("%02X", buf[i]);
+  }
+  printf("\n");
   if(WriteFile(Cport[comport_number], buf, size, (LPDWORD)((void *)&n), NULL))
   {
     return(n);
   }
-
   return(-1);
 }
 

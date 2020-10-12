@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "laser_power2", "laser_power2\laser_power2.vcxproj", "{2825ABB8-D87A-4165-8786-617C273FD276}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Debug|x64.ActiveCfg = Debug|x64
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Debug|x64.Build.0 = Debug|x64
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Debug|x86.ActiveCfg = Debug|Win32
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Debug|x86.Build.0 = Debug|Win32
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Release|x64.ActiveCfg = Release|x64
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Release|x64.Build.0 = Release|x64
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Release|x86.ActiveCfg = Release|Win32
+		{2825ABB8-D87A-4165-8786-617C273FD276}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C18D489-666D-4AE6-BCC2-E6F13DC351D1}
+	EndGlobalSection
+EndGlobal

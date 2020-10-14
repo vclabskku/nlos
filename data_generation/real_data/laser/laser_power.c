@@ -15,19 +15,16 @@ int laser_on(int cport_nr) {
     BYTE send_1[7] = { 0x55, 0xaa, 0x05, 0x04, 0x00, 0x01, 0x00 };
     send_1[6] = send_1[2] + send_1[3] + send_1[4] + send_1[5];
     RS232_SendBuf(cport_nr, send_1, 7);
-    printf("laser_1 on\n");
     Sleep(1000);
 
     BYTE send_2[7] = { 0x55, 0xaa, 0x05, 0x05, 0x00, 0x01, 0x00 };
     send_2[6] = send_2[2] + send_2[3] + send_2[4] + send_2[5];
     RS232_SendBuf(cport_nr, send_2, 7);
-    printf("laser_2 on\n");
     Sleep(1000);
 
     BYTE send_3[7] = { 0x55, 0xaa, 0x05, 0x06, 0x00, 0x01, 0x00 };
     send_3[6] = send_3[2] + send_3[3] + send_3[4] + send_3[5];
     RS232_SendBuf(cport_nr, send_3, 7);
-    printf("laser_3 on\n");
     Sleep(1000);
 
     return 0;
@@ -38,19 +35,16 @@ int laser_off(int cport_nr) {
     BYTE send_1[7] = { 0x55, 0xaa, 0x05, 0x04, 0x00, 0x00, 0x00 };
     send_1[6] = send_1[2] + send_1[3] + send_1[4] + send_1[5];
     RS232_SendBuf(cport_nr, send_1, 7);
-    printf("laser_1 off\n");
     Sleep(1000);
 
     BYTE send_2[7] = { 0x55, 0xaa, 0x05, 0x05, 0x00, 0x00, 0x00 };
     send_2[6] = send_2[2] + send_2[3] + send_2[4] + send_2[5];
     RS232_SendBuf(cport_nr, send_2, 7);
-    printf("laser_2 off\n");
     Sleep(1000);
 
     BYTE send_3[7] = { 0x55, 0xaa, 0x05, 0x06, 0x00, 0x00, 0x00 };
     send_3[6] = send_3[2] + send_3[3] + send_3[4] + send_3[5];
     RS232_SendBuf(cport_nr, send_3, 7);
-    printf("laser_3 off\n");
     Sleep(1000);
 
     return 0;
@@ -75,7 +69,6 @@ int laser_power_change(int laser_power1, int laser_power2, int laser_power3, int
         send_1[5] = (BYTE)laser_power1;
         send_1[6] = send_1[2] + send_1[3] + send_1[4] + send_1[5];
         RS232_SendBuf(cport_nr, send_1, 7);
-        printf("laser_1 change\n");
         Sleep(1000);
 
         BYTE send_2[7] = { 0x55, 0xaa, 0x05, 0x01, 0x00, 0x00, 0x00 };
@@ -83,7 +76,6 @@ int laser_power_change(int laser_power1, int laser_power2, int laser_power3, int
         send_2[5] = (BYTE)laser_power2;
         send_2[6] = send_2[2] + send_2[3] + send_2[4] + send_2[5];
         RS232_SendBuf(cport_nr, send_2, 7);
-        printf("laser_2 change\n");
         Sleep(1000);
 
         BYTE send_3[7] = { 0x55, 0xaa, 0x05, 0x02, 0x00, 0x00, 0x00 };
@@ -91,7 +83,6 @@ int laser_power_change(int laser_power1, int laser_power2, int laser_power3, int
         send_3[5] = (BYTE)laser_power3;
         send_3[6] = send_3[2] + send_3[3] + send_3[4] + send_3[5];
         RS232_SendBuf(cport_nr, send_3, 7);
-        printf("laser_3 change\n");
         Sleep(1000);
 
         return 0;
@@ -115,12 +106,8 @@ int main(int argc, char *argv[]){
         printf("Success to connect laser\n");
         
         laser_off(cport_nr);
-        printf("trun off laser\n");
         laser_on(cport_nr);
-        printf("trun on laser\n");
         laser_power_change(laser1_power, laser2_power, laser3_power, cport_nr);
-        printf("change power\n");
-
         return 0;
     }
     else {

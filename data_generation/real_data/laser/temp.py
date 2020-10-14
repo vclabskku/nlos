@@ -11,4 +11,4 @@ class Laser():
 
 config = dict(cport_nr=2, bdrate=9600)
 laser = Laser(config)
-temp = laser.change_power(20, 20, 20)
+temp = laser.change_power(50, 50, 50)

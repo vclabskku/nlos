@@ -48,22 +48,22 @@ class Depth():
         try:
             # Get frameset of color and depthprint('4')
 
-            #print('5555')
+            print('5555')
             frames = pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
-            #print('5')
+            print('5')
 
             # Align the depth frame to color frame
 
             # Get aligned frames
             depth_frame = frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
-            #print('6')
+            print('6')
             # Validate that both frames are valid
             if not depth_frame:
                 print("ERROR : NO FRAME")
                 return
             colorizer = rs.colorizer()
-            #print('7')
+            print('7')
             depth_image = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
             # Remove background - Set pixels further than clipping_distance to grey
@@ -134,6 +134,6 @@ class Depth():
 
 
 
-
-depth = Depth()
-depth.get_depth_image()
+if __name__ == "__main__":
+    depth = Depth(config=None)
+    depth.get_depth_image()

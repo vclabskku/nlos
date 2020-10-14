@@ -11,7 +11,9 @@ config["light_config"]["gt_brightness"] = 100
 config["light_config"]["laser_brightness"] = 0
 
 config["turtlebot_config"] = dict()
-config["turtlebot_config"]["area_range"] = [0.0, 0.0]
+config["turtlebot_config"]["area_range"] = [[0.0, 0.0], [10.0, 10.0]]
+config["turtlebot_config"]["spatial_grid"] = [11, 11]
+config["turtlebot_config"]["angles"] = [0.0, 0.2, 0.4, 0.8, 1.0, 2.0, 5.0, -2.0, -1.0, -0.8, -0.4, -0.2]
 
 config["cmos_config"] = dict()
 config["cmos_config"]["something"] = None
@@ -39,7 +41,7 @@ config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
 #config for light
 config["LIGHT"] = dict()
-#¿Þ¾Õ, ¿À¾Õ, ¿ÞµÚ, ¿ÀµÚ
+#ï¿½Þ¾ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½Þµï¿½, ï¿½ï¿½ï¿½ï¿½
 config["LIGHT"]["BULB_LIST"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
 config["LIGHT"]["gt_brightness"] = 100
 config["LIGHT"]["laser_brightness"] = 1

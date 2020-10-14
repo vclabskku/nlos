@@ -719,10 +719,6 @@ int RS232_SendBuf(int comport_number, unsigned char *buf, int size)
 {
   int n;
 
-  for (int i=0; i<size; i++){
-    printf("%02X", buf[i]);
-  }
-  printf("\n");
   if(WriteFile(Cport[comport_number], buf, size, (LPDWORD)((void *)&n), NULL))
   {
     return(n);

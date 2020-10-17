@@ -41,40 +41,74 @@ class Collector():
 
         while not turtlebot_done:
             # set light for gt
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                1, "Light"))
             self.light.light_for_gt()
 
             # move the object to a point
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                2, "Turtlebot"))
             turtlebot_done, turtlebot_position = self.turtlebot.move()
 
             # get gt rgb image
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                3, "CMOS"))
             gt_rgb_image = self.cmos.get_gt_image()
 
             # get gt depth image
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                4, "Depth"))
             gt_depth_image = self.depth.get_depth_image()
 
             # get 2D object detection bboxes
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                5, "Detector"))
             gt_bboxes = self.detector.detect(gt_rgb_image)
 
             # set light for laser
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                6, "Light"))
             self.light.light_for_laser()
 
             # turn on laser
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                7, "Laser"))
             self.laser.turn_on()
 
             # step on galvanometer for grid scanning
             galvanometer_done = False
             reflection_items = list()
             while not galvanometer_done:
+                print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
+                    data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    8, "Galvanometer", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2,))
                 galvanometer_done, galvanometer_position = self.galvanometer.step()
 
                 # get reflection image
+                print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
+                    data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    9, "CMOS", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2,))
                 reflection_images = self.cmos.get_reflection_images()
                 reflection_items.append([galvanometer_position, reflection_images])
 
             # turn off laser
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                10, "Laser"))
             self.laser.turn_off()
 
             # save data
+
+            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Save the data".format(
+                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                11, "Data"))
             this_data_folder = os.path.join(self.data_folder, "D{:08d}".format(data_count + 1))
             try:
                 os.mkdir(this_data_folder)
@@ -105,5 +139,6 @@ class Collector():
 
             with open(data_json_path, "w") as fp:
                 json.dump(data_json, fp, indent=4, sort_keys=True)
+            data_count += 1
 
 

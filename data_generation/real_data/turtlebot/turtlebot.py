@@ -1,5 +1,5 @@
 import numpy as np
-import os
+import subprocess
 
 class Turtlebot():
 
@@ -18,21 +18,26 @@ class Turtlebot():
         self.y_coords = np.linspace(y_min, y_max, y_num_cells)
         self.angles = self.config["angles"]
 
-        self.x_i = 0
-        self.y_i = 0
-        self.a_i = 0
+        self.index = 0
+        self.l_x = len(self.x_coords)
+        self.l_y = len(self.y_coords)
+        self.l_a = len(self.angles)
 
     def move(self):
-        x = self.x_coords[self.x_i]
-        y = self.y_coords[self.y_i]
-        a = self.angles[self.a_i]
-        cmd = \
-            "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
-            "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals " \
-            "&& simple_navigation_goals.exe {} {} {}".format(x, y, a)
-        os.system(cmd)
+        x = self.x_coords[self.index // (self.l_y * self.l_a)]
+        y = self.y_coords[(self.index // (self.l_a)) % self.l_y]
+        a = self.angles[self.index % self.l_a]
+        while True:
+            cmd = \
+                "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
+                "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals " \
+                "&& simple_navigation_goals.exe {} {} {}".format(x, y, a)
+            ok = subprocess.check_output(cmd.split())
+            ok = bool(ok.decode().rstrip())
+            if ok:
+                break
 
-        done = (self.x_i >= len(self.x_coords) - 1) and \
-               (self.y_i >= len(self.y_coords) - 1) and \
-               (self.a_i >= len(self.angles))
+        self.index += 1
+        done = self.index >= self.l_x * self.l_y * self.l_a
+
         return done, [x, y, a]

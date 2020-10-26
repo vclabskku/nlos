@@ -49,7 +49,7 @@ config["LIGHT"]["laser_brightness"] = 1
 
 #config for detector
 config["DETECTOR"] = dict()
-config["DETECTOR"]["DETECTRON_ROOT"] = "C:\Users\vclab\PycharmProjects\detectron2"
+config["DETECTOR"]["DETECTRON_ROOT"] = "C:\\Users\\vclab\\PycharmProjects\\detectron2"
 config["DETECTOR"]["CONFIG_FILE"] = "configs/novel/retinanet_R_50_FPN_1x.yaml"
 config["DETECTOR"]["CHECK_POINT"] = "output/novel/model_0004999.pth"
 

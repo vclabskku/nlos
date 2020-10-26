@@ -47,6 +47,7 @@ class Collector():
             self.light.light_for_gt()
 
             # move the object to a point
+
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 2, "Turtlebot"))

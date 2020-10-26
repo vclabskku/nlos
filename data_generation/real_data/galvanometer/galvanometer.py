@@ -49,6 +49,8 @@ class Galvanometer():
         x_voltage = calculate_x_voltage(x_index * self.x_term)
         y_voltage = calculate_y_voltage(y_index * self.y_term)
 
+        print([x_voltage, y_voltage])
+
         self.task.write([x_voltage, y_voltage], auto_start=True)
         self.count += 1
 
@@ -57,3 +59,18 @@ class Galvanometer():
             return True, [x_index, y_index]
         else:
             return False, [x_index, y_index]
+
+if __name__ == "__main__":
+    config = dict()
+    config["galvanometer_config"] = dict()
+    config["galvanometer_config"]["num_grid"] = 7
+    config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
+    print("~~")
+    galv = Galvanometer(config["galvanometer_config"])
+    print("!!")
+    import time
+    done = False
+    while not done:
+        print("!!")
+        done, _ = galv.step()
+        time.sleep(1)

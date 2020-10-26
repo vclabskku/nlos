@@ -12,8 +12,9 @@ config["light_config"]["laser_brightness"] = 0
 
 config["turtlebot_config"] = dict()
 config["turtlebot_config"]["area_range"] = [[0.0, 0.0], [10.0, 10.0]]
-config["turtlebot_config"]["spatial_grid"] = [11, 11]
-config["turtlebot_config"]["angles"] = [0.0, 0.2, 0.4, 0.8, 1.0, 2.0, 5.0, -2.0, -1.0, -0.8, -0.4, -0.2]
+config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
+config["turtlebot_config"]["spatial_step"] = 0.1
+config["turtlebot_config"]["angle_step"] = 10.0
 
 config["cmos_config"] = dict()
 config["cmos_config"]["something"] = None

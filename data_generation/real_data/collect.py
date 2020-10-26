@@ -55,8 +55,9 @@ class Collector():
             # get gt rgb image
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                3, "CMOS"))
-            gt_rgb_image = self.cmos.get_gt_image()
+                3, "Depth"))
+            # gt_rgb_image = self.cmos.get_gt_image()
+            gt_rgb_image = self.depth.get_rgb()
 
             # get gt depth image
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(

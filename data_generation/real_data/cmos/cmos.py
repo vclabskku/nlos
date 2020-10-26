@@ -13,10 +13,12 @@ class CMOS():
             'BayerRG8': cv2.COLOR_BAYER_RG2RGB,
             'PixelFormat.BayerRG8': cv2.COLOR_BAYER_RG2RGB
         }
+
+        self.camera_ids = ["DEV_000F310382EB", "DEV_000F310382ED"]
     #### Camera ID #####
-    # DEV_000F310382ED #
-    # DEV_000F310382EC #
-    # DEV_000F310382EB #
+    # DEV_000F310382ED (Reflection Low) #
+    # DEV_000F310382EC (GT)#
+    # DEV_000F310382EB (Reflection High #
     ####################
     def setup_camera(self,cam: Camera):
         with cam:
@@ -34,10 +36,10 @@ class CMOS():
         image = take_pic(cam_id)
         return image
 
-    def get_reflection_images(self, cam_id): ## cam_id array with 2 strings
+    def get_reflection_images(self): ## cam_id array with 2 strings
         # get images from multiple cameras
-        image1 = take_pic(cam_id[0])
-        image2 = take_pic(cam_id[1])
+        image1 = take_pic(camera_ids[0])
+        image2 = take_pic(camera_ids[1])
         return image1, image2
 
 

@@ -11,12 +11,17 @@ class Turtlebot():
         y_min = self.config["area_range"][0][1]
         x_max = self.config["area_range"][1][0]
         y_max = self.config["area_range"][1][1]
-        x_num_cells = self.config["spatial_grid"][0]
-        y_num_cells = self.config["spatial_grid"][1]
+        a_min = self.config["angle_range"][0]
+        a_max = self.config["angle_range"][1]
+        s_step = self.config["spatial_step"]
+        a_step = self.config["angle_step"]
 
-        self.x_coords = np.linspace(x_min, x_max, x_num_cells)
-        self.y_coords = np.linspace(y_min, y_max, y_num_cells)
-        self.angles = self.config["angles"]
+        self.x_coords = np.arange(x_min, x_max + 1, s_step)
+        self.y_coords = np.arange(y_min, y_max + 1, s_step)
+        self.angles = list()
+        for angle in range(a_min, a_max, a_step):
+            self.angles.append(angle)
+            self.angles.append(angle + 180.0)
 
         self.index = 0
         self.l_x = len(self.x_coords)

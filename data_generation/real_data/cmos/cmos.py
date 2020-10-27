@@ -1,6 +1,6 @@
 import cv2
-from vimba import *
-from vimba.c_binding import *
+from data_generation.real_data.cmos.vimba import *
+from data_generation.real_data.cmos.vimba.c_binding import *
 import numpy as np
 import sys
 from typing import Optional
@@ -33,14 +33,36 @@ class CMOS():
                 pass
 
     def get_gt_image(self, cam_id): ## cam id string type
-        image = take_pic(cam_id)
+        image = self.take_pic(cam_id)
         return image
 
     def get_reflection_images(self): ## cam_id array with 2 strings
-        # get images from multiple cameras
-        image1 = take_pic(camera_ids[0])
-        image2 = take_pic(camera_ids[1])
-        return image1, image2
+        # image_list = []
+        # for i in range(len(self.camera_ids)):
+        #     image_list.append(self.get_gt_image(self.camera_ids[i]))
+        # return image_list
+
+        frame_list = []
+
+        with Vimba.get_instance() as vimba:
+            cams = vimba.get_all_cameras()
+            count = len(cams)
+
+            for i in range(count):
+                with cams[i] as cam:
+                    self.setup_camera(cam)
+                    while True:
+                        frame = cam.get_frame()
+                        frame.convert_pixel_format(PixelFormat.Bgr8)
+                        frame = frame.as_numpy_ndarray()
+                        print(np.count_nonzero(frame))
+                        if np.count_nonzero(frame) > 7000000:
+                            break
+                    frame_list.append(frame)
+                    # print(np.count_nonzero(frame))
+                    # frame.convert_pixel_format(PixelFormat.Bgr8)
+                    # frame_list.append(frame.as_opencv_image())
+        return frame_list
 
 
     def take_pic(self, cam_id=None): ## if want to take images from all cameras, leave the cam_id param blank.
@@ -69,7 +91,8 @@ class CMOS():
                 with cam as cam:
                     self.setup_camera(cam)
                     frame = cam.get_frame()
-                    frame.convert_pixel_format(PixelFormat.Bgra8)
+                    frame.convert_pixel_format(PixelFormat.Rgba8)
+                    # frame.convert_pixel_format(PixelFormat.Bgra8)
                     # print(frame.get_pixel_format().get_convertible_formats())
                     # image = cv2.cvtColor(image, PIXEL_FORMATS_CONVERSIONS[str(frame.get_pixel_format())])
                     fr2 = frame.as_numpy_ndarray()
@@ -79,6 +102,15 @@ class CMOS():
                     cv2.imwrite('./frame_%d.jpg' % 4, frame.as_opencv_image())
                 return fr2
 
-cmos = CMOS()
-cmos.take_pic()
+# cmos = CMOS()
+# cmos.take_pic()
 
+if __name__=="__main__":
+    cmos =CMOS()
+    image_list = cmos.get_reflection_images()
+    for i in range(len(image_list)):
+        # print(image_list[i].shape)
+        # image = cv2.cvtColor(image_list[i], cv2.COLOR_BGR2RGB)
+        image = image_list[i]
+        # print(image.shape)
+        cv2.imwrite("image_%d.jpg" % i, image)

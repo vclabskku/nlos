@@ -46,3 +46,13 @@ class Turtlebot():
         done = self.index >= self.l_x * self.l_y * self.l_a
 
         return done, [x, y, a]
+
+if __name__ == "__main__":
+    config = dict()
+    config["area_range"] = [[0.0, 0.0], [10.0, 10.0]]
+    config["angle_range"] = [0.0, 180.0]
+    config["spatial_step"] = 0.1
+    config["angle_step"] = 10.0
+
+    turtlebot = Turtlebot(config=config)
+

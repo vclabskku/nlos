@@ -51,7 +51,7 @@ class Collector():
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 2, "Turtlebot"))
-            turtlebot_done, turtlebot_position = self.turtlebot.move()
+            turtlebot_done, turtlebot_position = self.turtlebot.step()
 
             # get gt rgb image
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(

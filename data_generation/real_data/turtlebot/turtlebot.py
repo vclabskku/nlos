@@ -1,6 +1,7 @@
 import numpy as np
 import subprocess
 import math
+import os
 
 
 class Turtlebot():
@@ -27,18 +28,17 @@ class Turtlebot():
         a_step = self.config["angle_step"]
 
         if x_max >= x_min:
-            self.x_coords = np.arange(x_min, x_max + 1, s_step)
+            self.x_coords = np.arange(x_min, x_max + s_step, s_step)
         else:
-            self.x_coords = np.arange(x_max, x_min + 1, -s_step)
+            self.x_coords = np.arange(x_min, x_max - s_step, -s_step)
 
         if y_max >= y_min:
-            self.y_coords = np.arange(y_min, y_max + 1, s_step)
+            self.y_coords = np.arange(y_min, y_max + s_step, s_step)
         else:
-            self.y_coords = np.arange(y_max, y_min + 1, -s_step)
+            self.y_coords = np.arange(y_min, y_max - s_step, -s_step)
 
-        self.y_coords = np.arange(y_min, y_max + 1, s_step)
         self.angles = list()
-        for angle in range(a_min, a_max, a_step):
+        for angle in np.arange(a_min, a_max, a_step):
             self.angles.append(angle)
             self.angles.append(angle + 180.0)
 
@@ -60,11 +60,13 @@ class Turtlebot():
         #     ok = bool(ok.decode().rstrip())
         #     if ok:
         #         break
-        # self.current_x = x
-        # self.current_y = y
-        # self.current_a = a
 
-        self.move(x, y, a)
+        # self.move(x, y, a)
+
+        self.command(x, y, a)
+        self.current_x = x
+        self.current_y = y
+        self.current_a = a
 
         self.index += 1
         done = self.index >= self.l_x * self.l_y * self.l_a
@@ -134,26 +136,34 @@ class Turtlebot():
     #             self.current_a = next_a
 
     def command(self, x, y, a):
+        print(x, y, a)
         count = 0
         while True:
             cmd = \
                 "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
                 "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals " \
                 "&& simple_navigation_goals.exe {} {} {}".format(x, y, a)
-            ok = subprocess.check_output(cmd.split())
-            ok = bool(ok.decode().rstrip())
+            ok = bool(os.system(cmd))
+            # ok = subprocess.check_output(cmd.split())
+            # ok = bool(ok.decode().rstrip())
             count += 1
             if ok or (count > self.max_iterations):
                 break
+            # break
 
 
 
 if __name__ == "__main__":
     config = dict()
-    config["area_range"] = [[0.0, 0.0], [10.0, 10.0]]
+    config["area_range"] = [[0.0, 0.0], [2.0, -2.0]]
     config["angle_range"] = [0.0, 180.0]
     config["spatial_step"] = 0.1
     config["angle_step"] = 10.0
 
     turtlebot = Turtlebot(config=config)
-    turtlebot.step()
+    # turtlebot.command(1.0, 0.0, 0.0)
+
+    done = False
+    while not done:
+        done, position = turtlebot.step()
+        print(position)

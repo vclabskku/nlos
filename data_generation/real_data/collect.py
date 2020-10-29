@@ -1,4 +1,3 @@
-
 from data_generation.real_data.light.light import Light
 from data_generation.real_data.turtlebot.turtlebot import Turtlebot
 from data_generation.real_data.cmos.cmos import CMOS
@@ -11,6 +10,7 @@ import cv2
 import os
 import time
 import json
+
 
 class Collector():
 
@@ -51,7 +51,7 @@ class Collector():
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 2, "Turtlebot"))
-            turtlebot_done, turtlebot_position = self.turtlebot.move()
+            turtlebot_done, turtlebot_position = self.turtlebot.step()
 
             # get gt rgb image
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
@@ -90,13 +90,13 @@ class Collector():
             while not galvanometer_done:
                 print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
                     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    8, "Galvanometer", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2,))
+                    8, "Galvanometer", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2, ))
                 galvanometer_done, galvanometer_position = self.galvanometer.step()
 
                 # get reflection image
                 print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
                     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    9, "CMOS", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2,))
+                    9, "CMOS", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2, ))
                 reflection_images = self.cmos.get_reflection_images()
                 reflection_items.append([galvanometer_position, reflection_images])
 
@@ -142,5 +142,3 @@ class Collector():
             with open(data_json_path, "w") as fp:
                 json.dump(data_json, fp, indent=4, sort_keys=True)
             data_count += 1
-
-

@@ -4,9 +4,6 @@ import nidaqmx
 import math
 
 
-
-
-
 class Galvanometer():
 
     def __init__(self, config):
@@ -22,8 +19,8 @@ class Galvanometer():
         self.width = 135
         self.height = 64
 
-        self.num_grid = self.config["num_grid"] # num_grid x num_grid scanning
-        self.voltage_range = self.config["voltage_range"] # [-max_voltage, max_voltage]
+        self.num_grid = self.config["num_grid"]  # num_grid x num_grid scanning
+        self.voltage_range = self.config["voltage_range"]  # [-max_voltage, max_voltage]
 
         self.x_term = self.width / self.num_grid
         self.y_term = self.height / self.num_grid
@@ -46,8 +43,6 @@ class Galvanometer():
 
         return a * math.degrees(math.atan(self.absolute_y / math.sqrt(120 ** 2 + self.absolute_x ** 2)))
 
-
-
     def step(self):
 
         x_index = self.count // self.num_grid
@@ -67,6 +62,7 @@ class Galvanometer():
         else:
             return False, [x_index, y_index]
 
+
 if __name__ == "__main__":
     config = dict()
     config["galvanometer_config"] = dict()
@@ -76,6 +72,7 @@ if __name__ == "__main__":
     galv = Galvanometer(config["galvanometer_config"])
     print("!!")
     import time
+
     done = False
     while not done:
         print("!!")

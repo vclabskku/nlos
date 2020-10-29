@@ -35,19 +35,18 @@ config["laser_config"]["laser1"] = 100
 config["laser_config"]["laser2"] = 100
 config["laser_config"]["laser3"] = 100
 
-
 config["galvanometer_config"] = dict()
 config["galvanometer_config"]["num_grid"] = 7
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
-#config for light
+# config for light
 config["LIGHT"] = dict()
-#�޾�, ����, �޵�, ����
+# �޾�, ����, �޵�, ����
 config["LIGHT"]["BULB_LIST"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
 config["LIGHT"]["gt_brightness"] = 100
 config["LIGHT"]["laser_brightness"] = 1
 
-#config for detector
+# config for detector
 config["DETECTOR"] = dict()
 config["DETECTOR"]["DETECTRON_ROOT"] = "C:\\Users\\vclab\\PycharmProjects\\detectron2"
 config["DETECTOR"]["CONFIG_FILE"] = "configs/novel/retinanet_R_50_FPN_1x.yaml"

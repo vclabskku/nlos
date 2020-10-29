@@ -1,6 +1,7 @@
 import numpy as np
 import subprocess
 
+
 class Turtlebot():
 
     def __init__(self, config):
@@ -47,6 +48,7 @@ class Turtlebot():
 
         return done, [x, y, a]
 
+
 if __name__ == "__main__":
     config = dict()
     config["area_range"] = [[0.0, 0.0], [10.0, 10.0]]
@@ -55,4 +57,3 @@ if __name__ == "__main__":
     config["angle_step"] = 10.0
 
     turtlebot = Turtlebot(config=config)
-

@@ -15,6 +15,7 @@ class CMOS():
             'PixelFormat.BayerRG8': cv2.COLOR_BAYER_RG2RGB
         }
 
+<<<<<<< HEAD
         #### Camera ID #####
         # DEV_000F310382ED (Reflection Low) #
         # DEV_000F310382EC (GT)#
@@ -30,6 +31,25 @@ class CMOS():
             cam.GVSPAdjustPacketSize.run()
 
             while not cam.GVSPAdjustPacketSize.is_done():
+=======
+        s0o[NOelf.camera_ids = ["DEV_000F310382EB", "DEV_000F310382ED"]
+    #### Camera ID #####
+    # DEV_000F310382ED (Reflection Low) #
+    # DEV_000F310382EC (GT)#
+    # DEV_000F310382EB (Reflection High #
+    ####################
+
+    def setup_camera(self, cam: Camera):
+        with cam:
+            # Try to adjust GeV packet size. This Feature is only available for GigE - Cameras.
+            try:
+                cam.GVSPAdjustPacketSize.run()
+
+                while not cam.GVSPAdjustPacketSize.is_done():
+                    pass
+
+            except (AttributeError, VimbaFeatureError):
+>>>>>>> d3c3c542177627c6b3a098da0c0963b90c48cd1d
                 pass
         except (AttributeError, VimbaFeatureError):
             print("GVSP Adjust Packet Size Error!")

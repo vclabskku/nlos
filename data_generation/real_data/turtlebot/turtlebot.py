@@ -111,8 +111,6 @@ class Turtlebot():
         # a movement
         self.command(self.current_x, self.current_y, t_a)
 
-
-
     # def angular_move(self, target):
     #     t_a = target
     #
@@ -152,13 +150,12 @@ class Turtlebot():
             # break
 
 
-
 if __name__ == "__main__":
     config = dict()
-    config["area_range"] = [[0.0, 0.0], [2.0, -2.0]]
+    config["area_range"] = [[0.9, 0.0], [2.0, -2.0]]
     config["angle_range"] = [0.0, 180.0]
     config["spatial_step"] = 0.1
-    config["angle_step"] = 10.0
+    config["angle_step"] = 20.0
 
     turtlebot = Turtlebot(config=config)
     # turtlebot.command(1.0, 0.0, 0.0)

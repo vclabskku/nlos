@@ -1,4 +1,3 @@
-
 import numpy as np
 import nidaqmx
 import math
@@ -44,7 +43,6 @@ class Galvanometer():
         return a * math.degrees(math.atan(self.absolute_y / math.sqrt(120 ** 2 + self.absolute_x ** 2)))
 
     def step(self):
-
         x_index = self.count // self.num_grid
         y_index = self.count % self.num_grid
 

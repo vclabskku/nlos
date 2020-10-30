@@ -134,7 +134,6 @@ class Turtlebot():
     #             self.current_a = next_a
 
     def command(self, x, y, a):
-        print(x, y, a)
         count = 0
         while True:
             cmd = \
@@ -158,9 +157,9 @@ if __name__ == "__main__":
     config["angle_step"] = 20.0
 
     turtlebot = Turtlebot(config=config)
-    # turtlebot.command(1.0, 0.0, 0.0)
+    turtlebot.command(0.6, -0.6, 0.0)
 
-    done = False
-    while not done:
-        done, position = turtlebot.step()
-        print(position)
+    # done = False
+    # while not done:
+    #     done, position = turtlebot.step()
+    #     print(position)

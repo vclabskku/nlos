@@ -30,4 +30,4 @@ if __name__ == "__main__":
     config["laser_config"]["laser3"] = 100
 
     laser = Laser(config=config["laser_config"])
-    laser.turn_off()
+    laser.turn_on()

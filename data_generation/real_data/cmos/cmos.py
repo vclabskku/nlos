@@ -6,6 +6,7 @@ import sys
 from typing import Optional
 
 class CMOS():
+
     def __init__(self, config=None):
 
         self.config = config
@@ -20,7 +21,8 @@ class CMOS():
     # DEV_000F310382EC (GT)#
     # DEV_000F310382EB (Reflection High #
     ####################
-    def setup_camera(self,cam: Camera):
+
+    def setup_camera(self, cam: Camera):
         with cam:
             # Try to adjust GeV packet size. This Feature is only available for GigE - Cameras.
             try:

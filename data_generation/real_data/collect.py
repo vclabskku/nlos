@@ -10,6 +10,7 @@ import cv2
 import os
 import time
 import json
+import numpy as np
 
 
 class Collector():
@@ -27,8 +28,8 @@ class Collector():
         self.galvanometer = Galvanometer(self.config["galvanometer_config"])
 
         dst_folder = self.config["data_config"]["dst_folder"]
-        current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-        self.data_folder = os.path.join(dst_folder, current_datetime)
+        # current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        self.data_folder = os.path.join(dst_folder)
         try:
             os.mkdir(self.data_folder)
         except OSError:
@@ -39,52 +40,91 @@ class Collector():
         data_count = 0
         turtlebot_done = False
 
+        avg_image_paths = [os.path.join(self.data_folder, "initialization",
+                                        "Avg_X{:02d}_Y{:02d}_C{:02d}.png".format(x + 1, y + 1, c + 1))
+                           for x in range(self.config["galvanometer_config"]["num_grid"])
+                           for y in range(self.config["galvanometer_config"]["num_grid"])
+                           for c in range(len(self.config["cmos_config"]["cam_ids"]))]
+        exist_flags = [os.path.exists(path) for path in avg_image_paths]
+        if False not in exist_flags:
+            self.avg_images = list()
+            for x in range(self.config["galvanometer_config"]["num_grid"]):
+                for y in range(self.config["galvanometer_config"]["num_grid"]):
+                    images = list()
+                    for c in range(len(self.config["cmos_config"]["cam_ids"])):
+                        path = os.path.join(self.data_folder,
+                                            "Avg_X{:02d}_Y{:02d}_C{:02d}.png".format(x + 1, y + 1, c + 1))
+                        image = cv2.imread(path)
+                        images.append(image)
+                    self.avg_images.append(images)
+            self.avg_images = np.array(self.avg_images)
+        else:
+            print("Initialization ...")
+            self.initialize()
+
         while not turtlebot_done:
-            # set light for gt
+            ###
+            ### Set light for gt
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 1, "Light"))
             self.light.light_for_gt()
 
-            # move the object to a point
+            ###
+            ### Move the object to a point
+            ###
 
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 2, "Turtlebot"))
             turtlebot_done, turtlebot_position = self.turtlebot.step()
 
-            # get gt rgb image
+            ###
+            ### Get gt rgb image
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 3, "Depth"))
             # gt_rgb_image = self.cmos.get_gt_image()
             gt_rgb_image = self.depth.get_rgb()
 
-            # get gt depth image
+            ###
+            ### Get gt depth image
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 4, "Depth"))
             gt_depth_image = self.depth.get_depth_image()
 
-            # get 2D object detection bboxes
+            ###
+            ### Get 2D object detection bboxes
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 5, "Detector"))
+            # TODO: convert instances to array or list
             gt_bboxes = self.detector.detect(gt_rgb_image)
 
-            # set light for laser
+            ###
+            ### Set light for laser
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 6, "Light"))
             self.light.light_for_laser()
 
-            # turn on laser
+            ###
+            ### Turn on laser
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 7, "Laser"))
             self.laser.turn_on()
 
-            # step on galvanometer for grid scanning
+            ###
+            ### Step on galvanometer for grid scanning
+            ###
             galvanometer_done = False
             reflection_items = list()
             while not galvanometer_done:
@@ -98,16 +138,31 @@ class Collector():
                     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                     9, "CMOS", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2, ))
                 reflection_images = self.cmos.get_reflection_images()
-                reflection_items.append([galvanometer_position, reflection_images])
+                diff_images = np.array(reflection_images, dtype=np.float32) - \
+                              np.array(self.avg_images, dtype=np.float32)
+                diff_images -= np.min(diff_images, axis=(2, 3), keepdims=True)
+                # diff_images += 255.0
+                diff_images = diff_images / np.max(diff_images, axis=(2, 3), keepdims=True)
+                # diff_images /= (255.0 * 2)
+                diff_images = np.array(np.clip(diff_images * 255.0, 0.0, 255.0), dtype=np.uint8)
+                # for i, images in enumerate(diff_images):
+                #     for j, image in enumerate(images):
+                #         image_name = "Diff_G{:02d}_C{:02d}.png".format(i + 1, j + 1)
+                #         image_path = os.path.join(dir, image_name)
+                #         cv2.imwrite(image_path, image)
+                reflection_items.append([galvanometer_position, diff_images])
 
-            # turn off laser
+            ###
+            ### Turn off laser
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 10, "Laser"))
             self.laser.turn_off()
 
-            # save data
-
+            ###
+            ### save data
+            ###
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Save the data".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 11, "Data"))
@@ -142,3 +197,54 @@ class Collector():
             with open(data_json_path, "w") as fp:
                 json.dump(data_json, fp, indent=4, sort_keys=True)
             data_count += 1
+
+    def initialize(self):
+        dir = os.path.join(self.data_folder, "initialization")
+        try:
+            os.mkdir(dir)
+        except OSError:
+            pass
+        self.laser.turn_on()
+        cmos = CMOS(config=self.config["cmos_config"])
+
+        # init turtlebot
+        turtlebot = Turtlebot(config=self.config["turtlebot_config"])
+
+        # init galvanometer
+        galvanometer = Galvanometer(config=self.config["galvanometer_config"])
+
+        import nidaqmx
+        task = nidaqmx.Task()
+        task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
+        task.ao_channels.add_ao_voltage_chan("Dev1/ao1")
+
+        # move turtlebot to the outside of RoI
+        print("Move turtlebot outside")
+        x, y, a = 2.5, 0.0, 0.0
+        turtlebot.command(x, y, a)
+
+        # scan with galvanometer for average images
+        done = False
+        self.avg_images = list()
+        while not done:
+            done, position = galvanometer.step()
+            print("Take average images X{:2d}/{:2d} Y{:2d}/{:2d}".format(
+                position[0] + 1, self.config["galvanometer_config"]["num_grid"],
+                position[1] + 1, self.config["galvanometer_config"]["num_grid"]
+            ))
+            images = np.array(cmos.get_reflection_images(), dtype=np.float32)
+            for _ in range(3):
+                images += np.array(cmos.get_reflection_images(), dtype=np.float32)
+            images /= float(3.0)
+            images = np.array(np.clip(images, 0.0, 255.0), dtype=np.uint8)
+            self.avg_images.append(images)
+            for i, image in enumerate(images):
+                image_name = "Avg_X{:02d}_Y{:02d}_C{:02d}.png".format(position[0] + 1, position[1] + 1, i + 1)
+                image_path = os.path.join(dir, image_name)
+                cv2.imwrite(image_path, image)
+
+        # move turtlebot to the outside of RoI
+        print("Move turtlebot to the initial point")
+        x, y, a = 0.6, -0.6, 0.0
+        turtlebot.command(x, y, a)
+        self.laser.turn_off()

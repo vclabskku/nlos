@@ -7,40 +7,38 @@ import cv2
 from PIL import Image
 import os
 
+
 class Depth():
+
     def __init__(self, config):
         self.config = config
 
     def get_depth_image(self):
         # Create a pipeline
         pipeline = rs.pipeline()
-        #print('1')
         # Create a config and configure the pipeline to stream
         #  different resolutions of color and depth streams
         config = rs.config()
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        #print('2')
-        #if not os.path.exists('./frame'):
+        # if not os.path.exists('./frame'):
         #    os.mkdir('./frame')
-        #count = len(os.walk('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth').__next__()[1])
-        #filename = './frame/depth_{}'.format(count)
-        #os.mkdir(filename)
+        # count = len(os.walk('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth').__next__()[1])
+        # filename = './frame/depth_{}'.format(count)
+        # os.mkdir(filename)
         # config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 6)
         # config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 6)
 
         # Start streaming
         profile = pipeline.start(config)
-        #print('3')
         # Getting the depth sensor's depth scale (see rs-align example for explanation)
         depth_sensor = profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
-        #print("Depth Scale is: ", depth_scale)
+        # print("Depth Scale is: ", depth_scale)
 
         # We will be removing the background of objects more than
         #  clipping_distance_in_meters meters away
         clipping_distance_in_meters = 5  # 1 meter
         clipping_distance = clipping_distance_in_meters / depth_scale
-        #print('4')
         # Create an align object
         # rs.align allows us to perform alignment of depth frames to others frames
         # The "align_to" is the stream type to which we plan to align depth frames.
@@ -48,27 +46,23 @@ class Depth():
         try:
             # Get frameset of color and depthprint('4')
 
-            print('5555')
             frames = pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
-            print('5')
 
             # Align the depth frame to color frame
 
             # Get aligned frames
             depth_frame = frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
-            print('6')
             # Validate that both frames are valid
             if not depth_frame:
                 print("ERROR : NO FRAME")
                 return
             colorizer = rs.colorizer()
-            print('7')
             depth_image = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
             # Remove background - Set pixels further than clipping_distance to grey
             grey_color = 153
-            #depth_image_3d = np.dstack(
+            # depth_image_3d = np.dstack(
             #    (depth_image, depth_image, depth_image))  # depth image is 1 channel, color is 3 channels
             # bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
 
@@ -81,7 +75,7 @@ class Depth():
 
             filename = "C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth"
             cv2.imwrite('{}/DEPTH.png'.format(filename), depth_image)
-            #print("success")
+            # print("success")
             # cv2.imwrite('{}/DEPTH.png'p.format(filename), images)
             # cv2.imwrite('{}/DEPTH.png'.format(filename), depth_colormap)
 
@@ -97,7 +91,7 @@ class Depth():
         # Create a pipeline
         pipeline = rs.pipeline()
 
-        #Create a config and configure the pipeline to stream
+        # Create a config and configure the pipeline to stream
         #  different resolutions of color and depth streams
         config = rs.config()
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
@@ -126,12 +120,11 @@ class Depth():
                 return
             colorizer = rs.colorizer()
             color_image = np.asanyarray(color_frame.get_data())
-            #print(color_image)
+            # print(color_image)
             return color_image
 
         finally:
             pipeline.stop()
-
 
 
 if __name__ == "__main__":

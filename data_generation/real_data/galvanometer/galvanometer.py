@@ -49,8 +49,6 @@ class Galvanometer():
         x_voltage = self.calculate_x_voltage(x_index * self.x_term)
         y_voltage = self.calculate_y_voltage(y_index * self.y_term)
 
-        print([x_voltage, y_voltage])
-
         self.task.write([x_voltage, y_voltage], auto_start=True)
         self.count += 1
 

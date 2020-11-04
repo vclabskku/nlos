@@ -4,10 +4,10 @@ class Light():
 
     def __init__(self, config):
 
-        self.config = config["LIGHT"]
+        self.config = config
 
         # initialize light bulbs
-        self.bulb_list = [ Bulb(bulb_ip) for bulb_ip in config["LIGHT"]["BULB_LIST"]]
+        self.bulb_list = [Bulb(bulb_ip) for bulb_ip in self.config["bulb_list"]]
 
     def light_for_gt(self):
 
@@ -31,10 +31,9 @@ if __name__ == '__main__':
     config = dict()
     #config for light
     config = dict()
-    config["LIGHT"] = dict()
-    config["LIGHT"]["BULB_LIST"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
-    config["LIGHT"]["gt_brightness"] = 0
-    config["LIGHT"]["laser_brightness"] = 0
+    config["bulb_list"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
+    config["gt_brightness"] = 100
+    config["laser_brightness"] = 0
     print(config)
     lo = Light(config)
     lo.light_for_gt()

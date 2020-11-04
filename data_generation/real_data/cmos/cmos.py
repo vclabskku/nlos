@@ -2,6 +2,8 @@ import cv2
 from data_generation.real_data.cmos.vimba import *
 # from data_generation.real_data.cmos.vimba.c_binding import *
 import numpy as np
+
+
 # from typing import Optional
 
 
@@ -20,9 +22,26 @@ class CMOS():
         # DEV_000F310382EC (GT)#
         # DEV_000F310382EB (Reflection High #
         ####################
-        self.camera_ids = ["DEV_000F310382EB", "DEV_000F310382ED"]
-        self.exposure_time = 2.0e+6
-        self.timeout_time = int(5.0e+3)
+        self.camera_ids = self.config["cam_ids"]
+        self.iterations = self.config["iterations"]
+        self.exposure_time = self.config["exposure_time"]
+        self.timeout_time = self.config["timeout_time"]
+
+        # TODO: we have to initialize cams only ones here!
+        # self.vimba = Vimba.get_instance()
+        # self.cams = list()
+        # for cam_id in self.camera_ids:
+        #     try:
+        #         cam = self.vimba.get_camera_by_id(cam_id)
+        #     except VimbaCameraError:
+        #         abort('Failed to access Camera {}. Abort.'.format(cam_id))
+        #
+        #     self.setup_camera(cam)
+        #     self.cams.append(cam)
+
+    # def __del__(self):
+    #
+    #     self.vimba.close()
 
     def setup_camera(self, cam: Camera):
         # with cam:
@@ -47,11 +66,12 @@ class CMOS():
         frame_list = []
 
         with Vimba.get_instance() as vimba:
-            cams = vimba.get_all_cameras()
-            count = len(cams)
-
-            for i in range(count):
-                with cams[i] as cam:
+            # cams = vimba.get_all_cameras()
+            # count = len(cams)
+            #
+            # for i in range(count):
+            for cam_id in self.camera_ids:
+                with vimba.get_camera_by_id(cam_id) as cam:
                     self.setup_camera(cam)
 
                     # for feature in cam.get_all_features():
@@ -96,9 +116,11 @@ if __name__ == "__main__":
     import os
     import numpy as np
     import sys
+
     print(os.path.abspath(".."))
     sys.path.append(os.path.join(os.path.abspath(".."), "turtlebot"))
     from turtlebot import Turtlebot
+
     # from ..galvanometer import Galvanometer
     dir = os.path.join("c:\\users\\vclab\\Desktop", "galvanometer_setting2")
     try:
@@ -203,7 +225,6 @@ if __name__ == "__main__":
     #         cv2.imwrite(image_path, image)
     # task.close()
 
-
     # x, y, a = 2.3, -0.6, 0.0
     # turtlebot.command(x, y, a)
 
@@ -229,6 +250,3 @@ if __name__ == "__main__":
         image_name = "TestDiff_C{:02d}.png".format(j + 1)
         image_path = os.path.join(dir, image_name)
         cv2.imwrite(image_path, image)
-
-
-

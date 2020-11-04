@@ -1,5 +1,6 @@
 import os
 
+
 # if the code works normally, the return value is 0
 class Laser():
     def __init__(self, config):
@@ -19,6 +20,7 @@ class Laser():
                 int(self.config['cport_nr']), int(self.config['bdrate']),
                 int(0), int(0), int(0)))
         return result
+
 
 if __name__ == "__main__":
     config = dict()

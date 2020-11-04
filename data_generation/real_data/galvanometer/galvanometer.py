@@ -15,14 +15,14 @@ class Galvanometer():
         # add y-axis channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao1")
 
-        self.width = 135
-        self.height = 64
+        self.width = 62
+        self.height = 44
 
         self.num_grid = self.config["num_grid"]  # num_grid x num_grid scanning
         self.voltage_range = self.config["voltage_range"]  # [-max_voltage, max_voltage]
 
-        self.x_term = self.width / self.num_grid
-        self.y_term = self.height / self.num_grid
+        self.x_term = self.width / (self.num_grid - 1)
+        self.y_term = self.height / (self.num_grid - 1)
 
         self.absolute_x = 0
         self.absolute_y = 0
@@ -31,16 +31,16 @@ class Galvanometer():
         self.count = 0
 
     def calculate_x_voltage(self, x):
-        a = -0.39500711
-        b = 18.9413809
-        self.absolute_x = 237 - x
-        return a * math.degrees(math.atan(self.absolute_x / 120)) + b
+        a = -0.3772873
+        b = 24.1237502
+        self.absolute_x = 247 - x
+        return a * math.degrees(math.atan(self.absolute_x / 107)) + b
 
     def calculate_y_voltage(self, y):
-        a = -0.39680965
-        self.absolute_y = 32 - y
+        a = -0.38503003
+        self.absolute_y = 22 - y
 
-        return a * math.degrees(math.atan(self.absolute_y / math.sqrt(120 ** 2 + self.absolute_x ** 2)))
+        return a * math.degrees(math.atan(self.absolute_y / math.sqrt(107 ** 2 + self.absolute_x ** 2)))
 
     def step(self):
         x_index = self.count // self.num_grid
@@ -64,13 +64,10 @@ if __name__ == "__main__":
     config["galvanometer_config"] = dict()
     config["galvanometer_config"]["num_grid"] = 7
     config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
-    print("~~")
     galv = Galvanometer(config["galvanometer_config"])
-    print("!!")
     import time
 
     done = False
     while not done:
-        print("!!")
         done, _ = galv.step()
-        time.sleep(1)
+        time.sleep(0.002)

@@ -52,7 +52,7 @@ class Collector():
                 for y in range(self.config["galvanometer_config"]["num_grid"]):
                     images = list()
                     for c in range(len(self.config["cmos_config"]["cam_ids"])):
-                        path = os.path.join(self.data_folder,
+                        path = os.path.join(self.data_folder, "initialization",
                                             "Avg_X{:02d}_Y{:02d}_C{:02d}.png".format(x + 1, y + 1, c + 1))
                         image = cv2.imread(path)
                         images.append(image)
@@ -103,7 +103,6 @@ class Collector():
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 5, "Detector"))
-            # TODO: convert instances to array or list
             gt_bboxes = self.detector.detect(gt_rgb_image)
 
             ###
@@ -128,29 +127,37 @@ class Collector():
             galvanometer_done = False
             reflection_items = list()
             while not galvanometer_done:
+                galvanometer_done, galvanometer_position = self.galvanometer.step()
                 print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
                     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    8, "Galvanometer", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2, ))
-                galvanometer_done, galvanometer_position = self.galvanometer.step()
+                    8, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
 
                 # get reflection image
                 print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
                     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    9, "CMOS", self.galvanometer.count + 1, self.galvanometer.num_grid ** 2, ))
+                    9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
                 reflection_images = self.cmos.get_reflection_images()
                 diff_images = np.array(reflection_images, dtype=np.float32) - \
-                              np.array(self.avg_images, dtype=np.float32)
-                diff_images -= np.min(diff_images, axis=(2, 3), keepdims=True)
+                              np.array(self.avg_images[
+                                           galvanometer_position[0] //
+                                           self.config["galvanometer_config"]["num_grid"] +
+                                           galvanometer_position[1] %
+                                           self.config["galvanometer_config"]["num_grid"]], dtype=np.float32)
+                # diff_images -= np.min(diff_images, axis=(2, 3), keepdims=True)
+                diff_images_01 = np.abs(np.array(diff_images))
+                diff_images_02 = np.array(np.array(diff_images)) - \
+                                 np.min(np.array(diff_images), axis=(2, 3), keepdims=True)
+                diff_images_03 = np.array(np.array(diff_images)) + 255.0
                 # diff_images += 255.0
-                diff_images = diff_images / np.max(diff_images, axis=(2, 3), keepdims=True)
+                diff_images_01 = diff_images_01 / np.max(diff_images_01, axis=(2, 3), keepdims=True)
+                diff_images_02 = diff_images_02 / np.max(diff_images_02, axis=(2, 3), keepdims=True)
+                diff_images_03 = diff_images_03 / (255.0 * 2)
                 # diff_images /= (255.0 * 2)
-                diff_images = np.array(np.clip(diff_images * 255.0, 0.0, 255.0), dtype=np.uint8)
-                # for i, images in enumerate(diff_images):
-                #     for j, image in enumerate(images):
-                #         image_name = "Diff_G{:02d}_C{:02d}.png".format(i + 1, j + 1)
-                #         image_path = os.path.join(dir, image_name)
-                #         cv2.imwrite(image_path, image)
-                reflection_items.append([galvanometer_position, diff_images])
+                diff_images_01 = np.array(np.clip(diff_images_01 * 255.0, 0.0, 255.0), dtype=np.uint8)
+                diff_images_02 = np.array(np.clip(diff_images_02 * 255.0, 0.0, 255.0), dtype=np.uint8)
+                diff_images_03 = np.array(np.clip(diff_images_03 * 255.0, 0.0, 255.0), dtype=np.uint8)
+                reflection_items.append([galvanometer_position, reflection_images,
+                                         diff_images_01, diff_images_02, diff_images_03])
 
             ###
             ### Turn off laser
@@ -181,11 +188,32 @@ class Collector():
             for galvanometer_index, items in enumerate(reflection_items):
                 galvanometer_position = items[0]
                 reflection_images = items[1]
+                diff_images_01 = items[2]
+                diff_images_02 = items[3]
+                diff_images_03 = items[4]
                 for cmos_index, reflection_image in enumerate(reflection_images):
                     reflection_image_path = \
                         os.path.join(this_data_folder, "reflection_image_Gx{:02d}_Gy{:02d}_C{:02d}.png".format(
                             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
                     cv2.imwrite(reflection_image_path, reflection_image)
+
+                for cmos_index, diff_image in enumerate(diff_images_01):
+                    diff_image_path = \
+                        os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_abs.png".format(
+                            galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                    cv2.imwrite(diff_image_path, diff_image)
+
+                for cmos_index, diff_image in enumerate(diff_images_02):
+                    diff_image_path = \
+                        os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_max.png".format(
+                            galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                    cv2.imwrite(diff_image_path, diff_image)
+
+                for cmos_index, diff_image in enumerate(diff_images_03):
+                    diff_image_path = \
+                        os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_normal.png".format(
+                            galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                    cv2.imwrite(diff_image_path, diff_image)
 
             data_json = dict()
             data_json["object_type"] = self.config["data_config"]["object_type"]
@@ -205,6 +233,7 @@ class Collector():
         except OSError:
             pass
         self.laser.turn_on()
+        self.light.light_for_laser()
         cmos = CMOS(config=self.config["cmos_config"])
 
         # init turtlebot
@@ -248,3 +277,4 @@ class Collector():
         x, y, a = 0.6, -0.6, 0.0
         turtlebot.command(x, y, a)
         self.laser.turn_off()
+        self.light.light_for_gt()

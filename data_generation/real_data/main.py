@@ -3,12 +3,12 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "d:\\human_01"
+config["data_config"]["dst_folder"] = "d:\\human_02"
 config["data_config"]["object_type"] = "human"
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
 config["turtlebot_config"]["area_range"] = [[0.6, -0.6], [2.0, -2.0]]
-config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
+config["turtlebot_config"]["angle_range"] = [0.0, 10.0]
 config["turtlebot_config"]["spatial_step"] = 0.1
 config["turtlebot_config"]["angle_step"] = 20.0
 
@@ -33,8 +33,8 @@ config["laser_config"] = dict()
 config["laser_config"]["cport_nr"] = 2
 config["laser_config"]["bdrate"] = 9600
 config["laser_config"]["laser1"] = 100
-config["laser_config"]["laser2"] = 100
-config["laser_config"]["laser3"] = 100
+config["laser_config"]["laser2"] = 76
+config["laser_config"]["laser3"] = 85
 
 config["galvanometer_config"] = dict()
 config["galvanometer_config"]["num_grid"] = 2
@@ -54,5 +54,5 @@ config["detector_config"]["config_file"] = "configs/novel/retinanet_R_50_FPN_1x.
 config["detector_config"]["check_point"] = "output/novel/model_0004999.pth"
 
 collector = Collector(config)
-collector.initialize()
+# collector.initialize()
 collector.collect()

@@ -30,6 +30,10 @@ class Galvanometer():
         self.voltages = np.linspace(self.voltage_range[0], self.voltage_range[1], self.num_grid)
         self.count = 0
 
+    def __del__(self):
+
+        self.task.close()
+
     def calculate_x_voltage(self, x):
         a = -0.3772873
         b = 24.1237502
@@ -53,7 +57,7 @@ class Galvanometer():
         self.count += 1
 
         if self.count >= self.num_grid ** 2:
-            self.task.close()
+            self.count = 0
             return True, [x_index, y_index]
         else:
             return False, [x_index, y_index]

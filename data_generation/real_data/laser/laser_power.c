@@ -90,24 +90,32 @@ int laser_power_change(int laser_power1, int laser_power2, int laser_power3, int
 }
 
 int main(int argc, char *argv[]){
-    if (argc == 6) {
+    if (argc == 7) {
         int cport_nr = atoi(argv[1]);   
         int bdrate = atoi(argv[2]); 
         int laser1_power = atoi(argv[3]);
         int laser2_power = atoi(argv[4]);
         int laser3_power = atoi(argv[5]);
-        
+        int laser_flag = atoi(argv[6]);
+
         char mode[] = { '8','N','1', 0 };
-        printf("Try to connect laser\n");
+        // printf("Try to connect laser\n");
         if (RS232_OpenComport(cport_nr, bdrate, mode, 0)) {
             printf("Can not open comport\n");
             return -1;
         }
-        printf("Success to connect laser\n");
+        // printf("Success to connect laser\n");
         
-        laser_off(cport_nr);
-        laser_on(cport_nr);
-        laser_power_change(laser1_power, laser2_power, laser3_power, cport_nr);
+        if (laser_flag == 0) {
+            laser_power_change(laser1_power, laser2_power, laser3_power, cport_nr);
+        }
+        else if (laser_flag == 1){
+            laser_on(cport_nr);
+        }
+        else if (laser_flag == 2) {
+            laser_off(cport_nr);
+        }
+
         return 0;
     }
     else {

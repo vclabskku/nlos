@@ -96,6 +96,7 @@ class CMOS():
                             frame.convert_pixel_format(PixelFormat.Bgr8)
                             frame = frame.as_numpy_ndarray()
                             break
+                    frame = frame[:530]
                     frame_list.append(frame)
         return frame_list
 

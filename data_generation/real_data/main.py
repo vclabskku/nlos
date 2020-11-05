@@ -3,7 +3,7 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "d:\\human_02"
+config["data_config"]["dst_folder"] = "d:\\human_03"
 config["data_config"]["object_type"] = "human"
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()

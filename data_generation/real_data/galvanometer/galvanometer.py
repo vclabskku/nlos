@@ -74,4 +74,4 @@ if __name__ == "__main__":
     done = False
     while not done:
         done, _ = galv.step()
-        time.sleep(0.002)
+        time.sleep(0.2)

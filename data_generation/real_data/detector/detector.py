@@ -16,6 +16,7 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
+from detectron2.data.generator import pascalVOCGenerator
 
 
 class Detector():
@@ -31,6 +32,7 @@ class Detector():
         self.detector_cfg.MODEL.WEIGHTS = os.path.join(config["detectron_root"],
                                                        config["check_point"])
         self.predictor = DefaultPredictor(self.detector_cfg)
+        self.dataset_generator = pascalVOCGenerator(self.detector_cfg)
 
     def detect(self, image):
 
@@ -45,8 +47,15 @@ class Detector():
                                   np.expand_dims(classes, axis=-1)], axis=-1)
         results = np.array(results, dtype=np.float32).tolist()
 
-        return results
 
+        return results
+    
+
+    def extractResult(self, image, output, path):
+        results = self.predictor(image)
+        out_filename = os.path.join(output, os.path.basename(path))
+        out_predname = os.path.join(output, (os.path.splitext(os.path.basename(path))[0] + '.xml'))
+        self.dataset_generator.genFromPred(results, out_predname, out_filename)
 
 if __name__ == '__main__':
     import cv2

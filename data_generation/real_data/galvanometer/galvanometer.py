@@ -15,7 +15,7 @@ class Galvanometer():
         # add y-axis channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao1")
 
-        self.width = 62
+        self.width = 30
         self.height = 44
 
         self.num_grid = self.config["num_grid"]  # num_grid x num_grid scanning
@@ -37,7 +37,7 @@ class Galvanometer():
     def calculate_x_voltage(self, x):
         a = -0.3772873
         b = 24.1237502
-        self.absolute_x = 247 - x
+        self.absolute_x = 168 - x
         return a * math.degrees(math.atan(self.absolute_x / 107)) + b
 
     def calculate_y_voltage(self, y):

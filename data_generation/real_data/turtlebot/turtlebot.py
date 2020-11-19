@@ -42,7 +42,7 @@ class Turtlebot():
             self.angles.append(angle)
             self.angles.append(angle + 180.0)
 
-        self.index = 0
+        self.index = self.config["initial_index"]
         self.l_x = len(self.x_coords)
         self.l_y = len(self.y_coords)
         self.l_a = len(self.angles)
@@ -151,13 +151,16 @@ class Turtlebot():
 
 if __name__ == "__main__":
     config = dict()
+    config["initial_index"] = 0
     config["area_range"] = [[0.9, 0.0], [2.0, -2.0]]
     config["angle_range"] = [0.0, 180.0]
     config["spatial_step"] = 0.1
     config["angle_step"] = 20.0
 
     turtlebot = Turtlebot(config=config)
-    turtlebot.command(0.6, -0.6, 0.0)
+    # turtlebot.command(0.6, -1.0, 0.0)
+    # turtlebot.command(2.1, -2.1, 0.0)
+    turtlebot.command(0.0, 0.0, 0.0)
 
     # done = False
     # while not done:

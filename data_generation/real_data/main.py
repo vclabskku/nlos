@@ -3,14 +3,20 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "d:\\human_03"
+config["data_config"]["dst_folder"] = "d:\\human_01"
 config["data_config"]["object_type"] = "human"
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
-config["turtlebot_config"]["area_range"] = [[0.6, -0.6], [2.0, -2.0]]
-config["turtlebot_config"]["angle_range"] = [0.0, 10.0]
+# string with 0! (You have to subtract 1 to wanted number!)
+config["turtlebot_config"]["initial_index"] = 0
+# X: 0.6, -0.6
+# leftbottom: 0.6, -1.0, 0.0
+# righttop: 2.1, -2.1, 0.0
+# config["turtlebot_config"]["area_range"] = [[0.0, -0.6], [1.6, -1.6]]
+config["turtlebot_config"]["area_range"] = [[0.6, -1.0], [2.1, -2.1]]
+config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
 config["turtlebot_config"]["spatial_step"] = 0.1
-config["turtlebot_config"]["angle_step"] = 20.0
+config["turtlebot_config"]["angle_step"] = 60.0
 
 #### Camera ID #####
 # DEV_000F310382ED (Reflection Low) #
@@ -20,7 +26,7 @@ config["turtlebot_config"]["angle_step"] = 20.0
 config["cmos_config"] = dict()
 config["cmos_config"]["cam_ids"] = ["DEV_000F310382EB", "DEV_000F310382ED"]
 config["cmos_config"]["iterations"] = 3
-config["cmos_config"]["exposure_time"] = 2.0e+6 # micro seconds
+config["cmos_config"]["exposure_time"] = 5.0e+5 # micro seconds
 config["cmos_config"]["timeout_time"] = int(5.0e+3) # milli seconds
 
 config["depth_config"] = dict()
@@ -37,7 +43,7 @@ config["laser_config"]["laser2"] = 76
 config["laser_config"]["laser3"] = 85
 
 config["galvanometer_config"] = dict()
-config["galvanometer_config"]["num_grid"] = 2
+config["galvanometer_config"]["num_grid"] = 5
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
 # config for light

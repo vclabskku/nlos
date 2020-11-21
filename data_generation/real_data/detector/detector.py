@@ -31,6 +31,8 @@ class Detector():
         # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
         self.detector_cfg.MODEL.WEIGHTS = os.path.join(config["detectron_root"],
                                                        config["check_point"])
+        #set to same size with nlos depth camera rgb image size, need to change here (dirty!)
+        self.detector_cfg.INPUT.MIN_SIZE_TEST = 480
         self.predictor = DefaultPredictor(self.detector_cfg)
         self.dataset_generator = pascalVOCGenerator(self.detector_cfg)
 

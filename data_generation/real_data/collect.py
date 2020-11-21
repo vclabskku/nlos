@@ -38,6 +38,7 @@ class Collector():
     def collect(self):
 
         whole_time = 0.0
+        time_count = 0
         data_count = self.config["turtlebot_config"]["initial_index"]
         turtlebot_done = False
 
@@ -63,6 +64,8 @@ class Collector():
         #     print("Initialization ...")
         #     self.initialize()
 
+        self.laser.turn_off()
+        self.light.light_for_gt()
         while not turtlebot_done:
             start_time = time.time()
             ###
@@ -71,7 +74,6 @@ class Collector():
             print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
                 data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 1, "Light"))
-            self.laser.turn_off()
             self.light.light_for_gt()
 
             ###
@@ -228,11 +230,12 @@ class Collector():
 
             with open(data_json_path, "w") as fp:
                 json.dump(data_json, fp, indent=4, sort_keys=True)
+            time_count += 1
             data_count += 1
             whole_time += time.time() - start_time
             print("T{:4d}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
                 data_count, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                whole_time / data_count))
+                whole_time / time_count))
 
     def initialize(self):
         dir = os.path.join(self.data_folder, "initialization")

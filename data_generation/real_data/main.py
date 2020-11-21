@@ -8,7 +8,7 @@ config["data_config"]["object_type"] = "human"
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
 # string with 0! (You have to subtract 1 to wanted number!)
-config["turtlebot_config"]["initial_index"] = 0
+config["turtlebot_config"]["initial_index"] = 369 - 1
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0
 # righttop: 2.1, -2.1, 0.0

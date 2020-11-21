@@ -2,6 +2,7 @@ import numpy as np
 import subprocess
 import math
 import os
+import time
 
 
 class Turtlebot():
@@ -144,9 +145,14 @@ class Turtlebot():
             # ok = subprocess.check_output(cmd.split())
             # ok = bool(ok.decode().rstrip())
             count += 1
-            if ok or (count > self.max_iterations):
+            if ok:
                 break
-            # break
+            elif count > self.max_iterations:
+                print("ERROR: Turtlebot cannot move!!!!")
+                print("Please move the turtlebot to [0, 0] and restart the navigation program!")
+                exit()
+
+            time.sleep(1)
 
 
 if __name__ == "__main__":

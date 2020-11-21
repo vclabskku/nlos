@@ -151,7 +151,9 @@ class Turtlebot():
                 print("ERROR: Turtlebot cannot move!!!!")
                 print("Please move the turtlebot to [0, 0] and restart the navigation program!")
                 exit()
-
+            
+            time.sleep(1)
+            command(0, 0, 0)
             time.sleep(1)
 
 

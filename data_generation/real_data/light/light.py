@@ -8,22 +8,36 @@ class Light():
 
         # initialize light bulbs
         self.bulb_list = [Bulb(bulb_ip) for bulb_ip in self.config["bulb_list"]]
+        for bulb in self.bulb_list:
+            bulb.turn_on()
 
     def light_for_gt(self):
 
         gt_brightness = self.config["gt_brightness"]
         # set the lights to the specified brightness
-        for bulb in self.bulb_list:
-            bulb.turn_on()
-            bulb.set_brightness(gt_brightness) 
+        try:
+            for bulb in self.bulb_list:
+            # for bulb in [Bulb(bulb_ip) for bulb_ip in self.config["bulb_list"]]:
+                bulb.turn_on()
+                bulb.set_brightness(gt_brightness)
+        except:
+            del self.bulb_list
+            self.bulb_list = [Bulb(bulb_ip) for bulb_ip in self.config["bulb_list"]]
+            self.light_for_gt()
 
     def light_for_laser(self):
 
         laser_brightness = self.config["laser_brightness"]
         # set the lights to the specified brightness
-        for bulb in self.bulb_list:
-            # bulb.set_brightness(laser_brightness)
-            bulb.turn_off()
+        try:
+            for bulb in self.bulb_list:
+            # for bulb in [Bulb(bulb_ip) for bulb_ip in self.config["bulb_list"]]:
+                # bulb.set_brightness(laser_brightness)
+                bulb.turn_off()
+        except:
+            del self.bulb_list
+            self.bulb_list = [Bulb(bulb_ip) for bulb_ip in self.config["bulb_list"]]
+            self.light_for_laser()
 
 
 if __name__ == '__main__': 

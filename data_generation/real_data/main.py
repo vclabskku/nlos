@@ -3,12 +3,12 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "d:\\human_01"
-config["data_config"]["object_type"] = "human"
+config["data_config"]["dst_folder"] = "d:\\human_04" # human_02
+config["data_config"]["object_type"] = "human" # human
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
 # string with 0! (You have to subtract 1 to wanted number!)
-config["turtlebot_config"]["initial_index"] = 369 - 1
+config["turtlebot_config"]["initial_index"] = 536 - 1
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0
 # righttop: 2.1, -2.1, 0.0

@@ -121,6 +121,10 @@ class Depth():
             colorizer = rs.colorizer()
             color_image = np.asanyarray(color_frame.get_data())
             # print(color_image)
+
+            filename = "C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth"
+            cv2.imwrite('{}/rgb_image.png'.format(filename), color_image)
+
             return color_image
 
         finally:
@@ -129,4 +133,5 @@ class Depth():
 
 if __name__ == "__main__":
     depth = Depth(config=None)
-    depth.get_depth_image()
+    # depth.get_depth_image()
+    depth.get_rgb()

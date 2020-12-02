@@ -261,7 +261,7 @@ class Collector():
         # move turtlebot to the outside of RoI
         print("Move turtlebot outside")
         x, y, a = 2.5, 0.0, 0.0
-        turtlebot.command(x, y, a)
+        # turtlebot.command(x, y, a)
 
         # scan with galvanometer for average images
         done = False
@@ -286,6 +286,6 @@ class Collector():
         # move turtlebot to the outside of RoI
         print("Move turtlebot to the initial point")
         x, y, a = 0.6, -0.6, 0.0
-        turtlebot.command(x, y, a)
+        # turtlebot.command(x, y, a)
         self.laser.turn_off()
         self.light.light_for_gt()

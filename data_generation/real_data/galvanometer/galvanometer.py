@@ -66,7 +66,7 @@ class Galvanometer():
 if __name__ == "__main__":
     config = dict()
     config["galvanometer_config"] = dict()
-    config["galvanometer_config"]["num_grid"] = 7
+    config["galvanometer_config"]["num_grid"] = 5
     config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
     galv = Galvanometer(config["galvanometer_config"])
     import time

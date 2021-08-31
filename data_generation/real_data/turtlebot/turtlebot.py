@@ -132,7 +132,7 @@ class Turtlebot():
     #             break
     #         else:
     #             self.command(self.current_x, self.current_y, next_a)
-    #             self.current_a = next_a
+    #             self.current_a = next_a   
 
     def command(self, x, y, a):
         count = 0

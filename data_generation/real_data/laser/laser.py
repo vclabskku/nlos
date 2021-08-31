@@ -47,10 +47,13 @@ if __name__ == "__main__":
     config["laser_config"] = dict()
     config["laser_config"]["cport_nr"] = 2
     config["laser_config"]["bdrate"] = 9600
-    config["laser_config"]["laser1"] = 10
-    config["laser_config"]["laser2"] = 10
-    config["laser_config"]["laser3"] = 10
+    config["laser_config"]["laser1"] = 100
+    config["laser_config"]["laser2"] = 76
+    config["laser_config"]["laser3"] = 85
+
 
     laser = Laser(config=config["laser_config"])
-    laser.laser_off()
-    laser.turn_off()
+    laser.turn_on()
+    laser.laser_on()
+    # laser.laser_off()
+    # laser.turn_off()

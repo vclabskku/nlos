@@ -42,6 +42,10 @@ config["laser_config"]["laser1"] = 100
 config["laser_config"]["laser2"] = 76
 config["laser_config"]["laser3"] = 85
 
+# config["laser_config"]["laser1"] = 5
+# config["laser_config"]["laser2"] = 5
+# config["laser_config"]["laser3"] = 5
+
 config["galvanometer_config"] = dict()
 config["galvanometer_config"]["num_grid"] = 5
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
@@ -58,6 +62,29 @@ config["detector_config"] = dict()
 config["detector_config"]["detectron_root"] = "C:\\Users\\vclab\\PycharmProjects\\detectron2"
 config["detector_config"]["config_file"] = "configs/novel/retinanet_R_50_FPN_1x.yaml"
 config["detector_config"]["check_point"] = "output/novel/model_0004999.pth"
+
+'''
+음장 센서 관련 부분
+'''
+# # config for arduino
+# config['arduino_config'] = dict()
+# config['arduino_config']['port'] = "COM5"
+# config['arduino_config']['baudrate'] = 9600
+#
+# # config for echo
+# config["echo_config"] = dict()
+# config["echo_config"]["device"] = "ASIO4ALL v2"
+# config["echo_config"]["samplerate"] = 48000
+# config["echo_config"]["bit_depth"] = "float32"
+# config["echo_config"]["input_mapping"] = [1, 2, 3, 4, 5, 6, 7, 8]
+# config["echo_config"]["output_mapping"] = [1, 2]
+#
+# config['echo_config']['amplitude'] = 1
+# config['echo_config']['frequency'] = [20, 20000]
+# config['echo_config']['transmit_duration'] = 0.1
+# config['echo_config']['record_duration'] = 1
+#
+# config['echo_config']['folder_path'] = 'sound/data/'
 
 collector = Collector(config)
 # collector.initialize()

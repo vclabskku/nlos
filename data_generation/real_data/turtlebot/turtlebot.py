@@ -10,9 +10,13 @@ class Turtlebot():
     def __init__(self, config):
 
         self.config = config
-        self.current_x = 0.0
-        self.current_y = 0.0
-        self.current_a = 0.0
+
+        self.num_turtlebots = self.config["num_turtlebots"]
+
+        self.current_xs = [0.0] * self.num_turtlebots
+        self.current_ys = [0.0] * self.num_turtlebots
+        self.current_as = [0.0] * self.num_turtlebots
+
         self.max_iterations = 10
         self.min_spatial_movement = 0.1
         self.max_spatial_movement = 0.1
@@ -43,15 +47,14 @@ class Turtlebot():
             self.angles.append(angle)
             self.angles.append(angle + 180.0)
 
-        self.index = self.config["initial_index"]
+        self.indices = self.config["initial_indices"]
+        self.ports = self.config["ports"]
+        self.master_ip = self.config["master_ip"]
         self.l_x = len(self.x_coords)
         self.l_y = len(self.y_coords)
         self.l_a = len(self.angles)
 
     def step(self):
-        x = self.x_coords[self.index // (self.l_y * self.l_a)]
-        y = self.y_coords[(self.index // (self.l_a)) % self.l_y]
-        a = self.angles[self.index % self.l_a]
         # while True:
         #     cmd = \
         #         "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
@@ -64,15 +67,67 @@ class Turtlebot():
 
         # self.move(x, y, a)
 
-        self.command(x, y, a)
-        self.current_x = x
-        self.current_y = y
-        self.current_a = a
+        if self.num_turtlebots >= 2:
+            if self.indices[1] <= 0:
+                self.current_xs[1] = self.x_coords[-1]
+                self.current_ys[1] = self.y_coords[-1]
 
-        self.index += 1
-        done = self.index >= self.l_x * self.l_y * self.l_a
+            done = False
+            while True:
+                x = self.x_coords[self.indices[0] // (self.l_y * self.l_a)]
+                y = self.y_coords[(self.indices[0] // (self.l_a)) % self.l_y]
+                a = self.angles[self.indices[0] % self.l_a]
 
-        return done, [x, y, a]
+                x_distance = abs(x - self.current_xs[1])
+                y_distance = abs(y - self.current_ys[1])
+
+                if x_distance >= self.config["min_distance"] and y_distance >= self.config["min_distance"]:
+                    break
+
+                self.indices[0] += 1
+                done = self.indices[0] >= self.l_x * self.l_y * self.l_a
+
+                if done:
+                    break
+
+            if not done:
+                self.command(x, y, a)
+                self.current_xs[0] = x
+                self.current_ys[0] = y
+                self.current_as[0] = a
+
+                self.indices[0] += 1
+                done = self.indices[0] >= self.l_x * self.l_y * self.l_a
+
+            # first turtlebot completes one cycle
+            if done:
+                self.indices[1] += 1
+                self.indices[0] = 0
+
+                x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
+                y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
+                a = self.angles[-(self.indices[1] % self.l_a) - 1]
+
+                self.command(x, y, a, port=self.ports[1])
+                self.current_xs[1] = x
+                self.current_ys[1] = y
+                self.current_as[1] = a
+
+            done = done and (self.indices[1] >= self.l_x * self.l_y * self.l_a)
+        else:
+            x = self.x_coords[self.indices[0] // (self.l_y * self.l_a)]
+            y = self.y_coords[(self.indices[0] // (self.l_a)) % self.l_y]
+            a = self.angles[self.indices[0] % self.l_a]
+
+            self.command(x, y, a)
+            self.current_xs[0] = x
+            self.current_ys[0] = y
+            self.current_as[0] = a
+
+            self.indices[0] += 1
+            done = self.indices[0] >= self.l_x * self.l_y * self.l_a
+
+        return done, [self.current_xs, self.current_ys, self.current_as]
 
     def move(self, t_x, t_y, t_a):
         # x movement
@@ -134,13 +189,14 @@ class Turtlebot():
     #             self.command(self.current_x, self.current_y, next_a)
     #             self.current_a = next_a   
 
-    def command(self, x, y, a):
+    def command(self, x, y, a, port="11311"):
         count = 0
         while True:
             cmd = \
                 "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
-                "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals " \
-                "&& simple_navigation_goals.exe {} {} {}".format(x, y, a)
+                "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals && " \
+                "set ROS_MASTER_URI=http://{}:{} && " \
+                "simple_navigation_goals.exe {} {} {}".format(self.config["master_ip"], port, x, y, a)
             ok = bool(os.system(cmd))
             # ok = subprocess.check_output(cmd.split())
             # ok = bool(ok.decode().rstrip())

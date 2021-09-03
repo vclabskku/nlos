@@ -26,36 +26,28 @@ class Collector():
 
         self.config = config
 
-        #self.light = Light(self.config["light_config"])
-        #self.turtlebot = Turtlebot(self.config["turtlebot_config"])
-        #self.cmos = CMOS(self.config["cmos_config"])
-        #self.depth = Depth(self.config["depth_config"])
-        #self.detector = Detector(self.config["detector_config"])
-        self.laser = Laser(self.config["laser_config"])
-        self.galvanometer = Galvanometer(self.config["galvanometer_config"])
-
-        #self.arduino = Arduino(self.config['arduino_config'])
-        #self.echo = Echo(self.config["echo_config"])
-
-        dst_folder = self.config["data_config"]["dst_folder"]
-        # current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-        self.data_folder = os.path.join(dst_folder)
-        try:
-            os.mkdir(self.data_folder)
-        except OSError:
-            pass
+        # self.light = Light(self.config["light_config"])
+        # self.turtlebot = Turtlebot(self.config["turtlebot_config"])
+        # self.cmos = CMOS(self.config["cmos_config"])
+        # self.depth = Depth(self.config["depth_config"])
+        # self.detector = Detector(self.config["detector_config"])
+        # self.laser = Laser(self.config["laser_config"])
+        # self.galvanometer = Galvanometer(self.config["galvanometer_config"])
+        #
+        # dst_folder = self.config["data_config"]["dst_folder"]
+        # # current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        # self.data_folder = os.path.join(dst_folder)
+        # try:
+        #     os.mkdir(self.data_folder)
+        # except OSError:
+        #     pass
 
     def initialize_roscore(self, turtlebot_num='1'):
-        os.system('killall -9 roscore')
-        _thread.start_new_thread(os.system,
-                                 (self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],))
-
-        # proc = subprocess.Popen(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],
-        #                         stdout=subprocess.PIPE)
-        # proc.communicate()
-
-        # os.system(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"])
-        # self.config["roscore"][turtlebot_num]["terminal_1"]["complete"] = False
+        threading.Thread(target=os.system,
+                         args=(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],),
+                         daemon=True)
+        # _thread.start_new_thread(os.system,
+        #                          (self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],))
 
     def initialize_turtlebot(self, turtlebot_num='1'):
         turtlebot = paramiko.SSHClient()
@@ -65,40 +57,37 @@ class Collector():
                           password=self.config["turtlebot_config"][turtlebot_num]["password"])
         stdin, stdout, stderr = turtlebot.exec_command(
             self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
-        # self.config["turtlebot_config"]["1"]["complete"] = False
+        print(stdout)
 
     def initialize_map(self, turtlebot_num='1'):
         _thread.start_new_thread(os.system,
                                  (self.config["roscore"][turtlebot_num]["terminal_2"]["operation"],))
 
-        # os.system(self.config["roscore"][turtlebot_num]["terminal_2"]["operation"])
-        # self.config["roscore"][turtlebot_num]["terminal_2"]["complete"] = False
-
     def initialize_roscore_set(self):
         for i in self.config["turtlebot_config"]["using_list"]:
             print('initialize roscore for turtlebot-'+i)
-            roscore = threading.Thread(target=self.initialize_roscore(), args=(i), daemon=True)
-            roscore.start()
+            threading.Thread(target=os.system,
+                             args=(self.config["roscore"][i]["terminal_1"]["operation"],),
+                             daemon=True)
+            # roscore = threading.Thread(target=self.initialize_roscore(), args=(i), daemon=True)
+            # roscore.start()
             time.sleep(20)
-            # if not(self.config["roscore"][i]["terminal_1"]["complete"]):
-            #     print(i + "-th roscore error")
-            #     exit()
 
-            print('\n\n\n\ninitialize turtlebot-'+i)
+            print('\ninitialize turtlebot-'+i)
+            # threading.Thread(target=self.initialize_turtlebot, args=(i,), daemon=True)
             turtlebot = threading.Thread(target=self.initialize_turtlebot(), args=(i), daemon=True)
             turtlebot.start()
             time.sleep(20)
-            # if not(self.config["turtlebot_config"][i]["complete"]):
-            #     print(i + "-th turtlebot error")
-            #     exit()
 
-            print('\n\n\n\ninitialize map for turtlebot-'+i)
+            print('\ninitialize map for turtlebot-'+i)
+            # threading.Thread(target=os.system,
+            #                  args=(self.config["roscore"][i]["terminal_2"]["operation"],),
+            #                  daemon=True)
+            # _thread.start_new_thread(os.system,
+            #                          (self.config["roscore"][i]["terminal_2"]["operation"],))
             map = threading.Thread(target=self.initialize_map(), args=(i), daemon=True)
             map.start()
-            time.sleep(20)
-            # if not(self.config["roscore"][i]["terminal_2"]["complete"]):
-            #     print(i + "-th roscore error")
-            #     exit()
+            time.sleep(60)
 
     def collect(self):
         self.initialize_roscore_set()
@@ -139,59 +128,58 @@ class Collector():
             ###
             ### Set light for gt
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     1, "Light"))
-            # self.light.light_for_gt()
+            print("T{}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                1, "Light"))
+            self.light.light_for_gt()
 
             ###
             ### Move the object to a point
             ###
-            #
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     2, "Turtlebot"))
-            #turtlebot_done, turtlebot_position = self.turtlebot.step()
+            print("T{}/{:4d}|S{:2d}:{:12s}|Move".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                2, "Turtlebot"))
+            turtlebot_done, turtlebot_position = self.turtlebot.step()
 
             ###
             ### Get gt rgb image
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     3, "Depth"))
-            # gt_rgb_image = self.cmos.get_gt_image()
-            #gt_rgb_image = self.depth.get_rgb()
+            print("T{}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                3, "Depth"))
+            gt_rgb_image = self.cmos.get_gt_image()
+            gt_rgb_image = self.depth.get_rgb()
 
             ###
             ### Get gt depth image
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     4, "Depth"))
-            #gt_depth_image = self.depth.get_depth_image()
+            print("T{}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                4, "Depth"))
+            gt_depth_image = self.depth.get_depth_image()
 
             ###
             ### Get 2D object detection bboxes
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     5, "Detector"))
-            # gt_bboxes = self.detector.detect(gt_rgb_image)
+            print("T{}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                5, "Detector"))
+            gt_bboxes = self.detector.detect(gt_rgb_image)
 
             ###
             ### Set light for laser
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     6, "Light"))
-            # self.light.light_for_laser()
+            print("T{}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                6, "Light"))
+            self.light.light_for_laser()
 
             ###
             ### Turn on laser
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     7, "Laser"))
+            print("T{}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                7, "Laser"))
             self.laser.turn_on()
 
             ###
@@ -201,17 +189,17 @@ class Collector():
             reflection_items = list()
             while not galvanometer_done:
                 galvanometer_done, galvanometer_position = self.galvanometer.step()
-                # print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
-                #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                #     8, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
+                print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
+                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    8, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
 
                 # get reflection image
-                # print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
-                #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                #     9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
+                print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
+                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
                 time.sleep(1)
 
-                # reflection_images = self.cmos.get_reflection_images()
+                reflection_images = self.cmos.get_reflection_images()
 
                 # diff_images = np.array(reflection_images, dtype=np.float32) - \
                 #               np.array(self.avg_images[
@@ -233,24 +221,24 @@ class Collector():
                 # diff_images_02 = np.array(np.clip(diff_images_02 * 255.0, 0.0, 255.0), dtype=np.uint8)
                 # diff_images_03 = np.array(np.clip(diff_images_03 * 255.0, 0.0, 255.0), dtype=np.uint8)
 
-                # reflection_items.append([galvanometer_position, reflection_images,
-                #                          # diff_images_01, diff_images_02, diff_images_03
-                #                          ])
+                reflection_items.append([galvanometer_position, reflection_images,
+                                         # diff_images_01, diff_images_02, diff_images_03
+                                         ])
 
             ###
             ### Turn off laser
             ###
-            # print("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
-            #     data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-            #     10, "Laser"))
+            print("T{}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                10, "Laser"))
             print("out")
             self.laser.turn_off()
 
             ###
             ### save data
             ###
-            print("T{:4d}/{:4d}|S{:2d}:{:12s}|Save the data".format(
-                data_count + 1, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+            print("T{}/{:4d}|S{:2d}:{:12s}|Save the data".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 11, "Data"))
             this_data_folder = os.path.join(self.data_folder, "D{:08d}".format(data_count + 1))
             try:
@@ -295,7 +283,6 @@ class Collector():
                 #     cv2.imwrite(diff_image_path, diff_image)
 
             data_json = dict()
-            data_json["object_type"] = self.config["data_config"]["object_type"]
             data_json["gt_brightness"] = self.config["light_config"]["gt_brightness"]
             data_json["gt_bboxes"] = gt_bboxes
             data_json["turtlebot_position"] = turtlebot_position
@@ -306,8 +293,8 @@ class Collector():
             time_count += 1
             data_count += 1
             whole_time += time.time() - start_time
-            print("T{:4d}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
-                data_count, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+            print("T{}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
+                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 whole_time / time_count))
 
     def initialize(self):

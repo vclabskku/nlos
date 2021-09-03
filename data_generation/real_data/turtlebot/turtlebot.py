@@ -69,9 +69,19 @@ class Turtlebot():
 
         if self.num_turtlebots >= 2:
             if self.indices[1] <= 0:
-                self.current_xs[1] = self.x_coords[-1]
-                self.current_ys[1] = self.y_coords[-1]
+                # Initialize the 2nd turtlebot
+                x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
+                y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
+                a = self.angles[-(self.indices[1] % self.l_a) - 1]
 
+                self.command(x, y, a, port=self.ports[1])
+                self.current_xs[1] = x
+                self.current_ys[1] = y
+                self.current_as[1] = a
+
+                self.indices[1] += 1
+
+            # move the 1st turtlebot
             done = False
             while True:
                 x = self.x_coords[self.indices[0] // (self.l_y * self.l_a)]
@@ -82,15 +92,19 @@ class Turtlebot():
                 y_distance = abs(y - self.current_ys[1])
 
                 if x_distance >= self.config["min_distance"] and y_distance >= self.config["min_distance"]:
+                    # if the distances are far enough, move the 1st turtlebot
                     break
 
+                # if the distances are not far enough, increment the index
                 self.indices[0] += 1
                 done = self.indices[0] >= self.l_x * self.l_y * self.l_a
 
                 if done:
+                    # if the distances are not far enough but the index is the end, move the 2nd turtlebot
                     break
 
             if not done:
+                # move the 1st turtlebot
                 self.command(x, y, a)
                 self.current_xs[0] = x
                 self.current_ys[0] = y
@@ -99,8 +113,9 @@ class Turtlebot():
                 self.indices[0] += 1
                 done = self.indices[0] >= self.l_x * self.l_y * self.l_a
 
-            # first turtlebot completes one cycle
+            # move the 2nd turtlebot
             if done:
+                # if the 1st turtlebot completes one cycle, move the 2nd turtlebot and initialize the 1st one
                 self.indices[1] += 1
                 self.indices[0] = 0
 

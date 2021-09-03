@@ -18,6 +18,7 @@ config["turtlebot_config"]["spatial_step"] = 0.1
 config["turtlebot_config"]["angle_step"] = 60.0
 config["turtlebot_config"]["min_distance"] = 0.25
 config["turtlebot_config"]["ports"] = ["11311", "11312"]
+config["turtlebot_config"]["marster_ip"] = "192.168.50.192"
 
 #### Camera ID #####
 # DEV_000F310382ED (Reflection Low) #

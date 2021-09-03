@@ -95,10 +95,11 @@
 #
 
 import os
-import subprocess
-import threading
+import paramiko
 
-# os.system('htop')
-# subprocess.Popen("set ChocolateyInstall=c://opt//chocolatey && c://opt//ros//melodic//x64//setup.bat && c://ws//turtlebot3//devel//setup.bat && roscore --port 11311", shell=True).wait()
-threading.Thread(os.system("set ChocolateyInstall=c://opt//chocolatey && c://opt//ros//melodic//x64//setup.bat && c://ws//turtlebot3//devel//setup.bat && roscore --port 11311"))
-
+turtlebot = paramiko.SSHClient()
+turtlebot.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+turtlebot.connect('192.168.50.116', port='22', username='turtlebot-01', password='vclab201703')
+print('connect')
+stdin, stdout, stderr = turtlebot.exec_command('roslaunch turtlebot3_bringup turtlebot3_robot.launch', get_pty=True)
+print(stdout.read())

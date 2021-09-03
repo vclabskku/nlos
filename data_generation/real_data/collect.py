@@ -25,22 +25,21 @@ class Collector():
     def __init__(self, config):
 
         self.config = config
+        self.light = Light(self.config["light_config"])
+        self.turtlebot = Turtlebot(self.config["turtlebot_config"])
+        self.cmos = CMOS(self.config["cmos_config"])
+        self.depth = Depth(self.config["depth_config"])
+        self.detector = Detector(self.config["detector_config"])
+        self.laser = Laser(self.config["laser_config"])
+        self.galvanometer = Galvanometer(self.config["galvanometer_config"])
 
-        # self.light = Light(self.config["light_config"])
-        # self.turtlebot = Turtlebot(self.config["turtlebot_config"])
-        # self.cmos = CMOS(self.config["cmos_config"])
-        # self.depth = Depth(self.config["depth_config"])
-        # self.detector = Detector(self.config["detector_config"])
-        # self.laser = Laser(self.config["laser_config"])
-        # self.galvanometer = Galvanometer(self.config["galvanometer_config"])
-        #
-        # dst_folder = self.config["data_config"]["dst_folder"]
-        # # current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-        # self.data_folder = os.path.join(dst_folder)
-        # try:
-        #     os.mkdir(self.data_folder)
-        # except OSError:
-        #     pass
+        dst_folder = self.config["data_config"]["dst_folder"]
+        # current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        self.data_folder = os.path.join(dst_folder)
+        try:
+            os.mkdir(self.data_folder)
+        except OSError:
+            pass
 
     def initialize_roscore(self, turtlebot_num='1'):
         threading.Thread(target=os.system,
@@ -50,14 +49,24 @@ class Collector():
         #                          (self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],))
 
     def initialize_turtlebot(self, turtlebot_num='1'):
+        retries = 10
         turtlebot = paramiko.SSHClient()
         turtlebot.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-        turtlebot.connect(self.config["turtlebot_config"][turtlebot_num]["ip"], port='22',
-                          username=self.config["turtlebot_config"][turtlebot_num]["username"],
-                          password=self.config["turtlebot_config"][turtlebot_num]["password"])
-        stdin, stdout, stderr = turtlebot.exec_command(
-            self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
-        print(stdout)
+
+        for x in range(retries):
+            try:
+                turtlebot.connect(self.config["turtlebot_config"][turtlebot_num]["ip"], port='22',
+                                  username=self.config["turtlebot_config"][turtlebot_num]["username"],
+                                  password=self.config["turtlebot_config"][turtlebot_num]["password"],
+                                  timeout=5)
+                break
+            except:
+                pass
+        for x in range(retries):
+            stdin, stdout, stderr = turtlebot.exec_command(
+                self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
+        # stdin, stdout, stderr = turtlebot.exec_command(
+        #     self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
 
     def initialize_map(self, turtlebot_num='1'):
         _thread.start_new_thread(os.system,
@@ -71,32 +80,31 @@ class Collector():
                              daemon=True)
             # roscore = threading.Thread(target=self.initialize_roscore(), args=(i), daemon=True)
             # roscore.start()
-            time.sleep(20)
+            time.sleep(30)
 
             print('\ninitialize turtlebot-'+i)
             # threading.Thread(target=self.initialize_turtlebot, args=(i,), daemon=True)
             turtlebot = threading.Thread(target=self.initialize_turtlebot(), args=(i), daemon=True)
             turtlebot.start()
-            time.sleep(20)
+            time.sleep(30)
 
             print('\ninitialize map for turtlebot-'+i)
             # threading.Thread(target=os.system,
             #                  args=(self.config["roscore"][i]["terminal_2"]["operation"],),
             #                  daemon=True)
-            # _thread.start_new_thread(os.system,
-            #                          (self.config["roscore"][i]["terminal_2"]["operation"],))
-            map = threading.Thread(target=self.initialize_map(), args=(i), daemon=True)
-            map.start()
-            time.sleep(60)
+            _thread.start_new_thread(os.system,
+                                     (self.config["roscore"][i]["terminal_2"]["operation"],))
+            # map = threading.Thread(target=self.initialize_map(), args=(i), daemon=True)
+            # map.start()
+            time.sleep(30)
 
     def collect(self):
-        self.initialize_roscore_set()
-        print('initialize_finish')
-        exit()
+        # self.initialize_roscore_set()
+        # print('initialize_finish')
 
         whole_time = 0.0
         time_count = 0
-        data_count = self.config["turtlebot_config"]["initial_index"]
+        data_count = self.config["turtlebot_config"]["initial_indices"]
         turtlebot_done = False
 
         # avg_image_paths = [os.path.join(self.data_folder, "initialization",
@@ -122,7 +130,7 @@ class Collector():
         #     self.initialize()
 
         self.laser.turn_off()
-        # self.light.light_for_gt()
+        self.light.light_for_gt()
         while not turtlebot_done:
             start_time = time.time()
             ###
@@ -147,7 +155,7 @@ class Collector():
             print("T{}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 3, "Depth"))
-            gt_rgb_image = self.cmos.get_gt_image()
+            # gt_rgb_image = self.cmos.get_gt_image()
             gt_rgb_image = self.depth.get_rgb()
 
             ###

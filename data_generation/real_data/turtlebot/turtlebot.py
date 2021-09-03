@@ -71,7 +71,7 @@ class Turtlebot():
             if self.indices[1] <= 0:
                 # Initialize the 2nd turtlebot
                 x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
-                y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
+                y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1] + 1
                 a = self.angles[-(self.indices[1] % self.l_a) - 1]
 
                 self.command(x, y, a, port=self.ports[1])
@@ -88,10 +88,9 @@ class Turtlebot():
                 y = self.y_coords[(self.indices[0] // (self.l_a)) % self.l_y]
                 a = self.angles[self.indices[0] % self.l_a]
 
-                x_distance = abs(x - self.current_xs[1])
-                y_distance = abs(y - self.current_ys[1])
+                distance = (((x - self.current_xs[1]) ** 2) + ((y - self.current_ys[1]) ** 2)) ** (1 / 2)
 
-                if x_distance >= self.config["min_distance"] and y_distance >= self.config["min_distance"]:
+                if distance >= self.config["min_distance"]:
                     # if the distances are far enough, move the 1st turtlebot
                     break
 
@@ -120,7 +119,7 @@ class Turtlebot():
                 self.indices[0] = 0
 
                 x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
-                y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
+                y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1] + 1
                 a = self.angles[-(self.indices[1] % self.l_a) - 1]
 
                 self.command(x, y, a, port=self.ports[1])

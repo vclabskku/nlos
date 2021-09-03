@@ -17,6 +17,60 @@ config["turtlebot_config"]["area_range"] = [[0.6, -1.0], [2.1, -2.1]]
 config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
 config["turtlebot_config"]["spatial_step"] = 0.1
 config["turtlebot_config"]["angle_step"] = 60.0
+'''
+turtlebot config 추가
+'''
+config["turtlebot_config"]["using_list"] = ['1']
+config["turtlebot_config"]["1"] = dict()
+config["turtlebot_config"]["2"] = dict()
+config["turtlebot_config"]["1"]["ip"] = '192.168.50.116'
+config["turtlebot_config"]["1"]["username"] = 'turtlebot-01'
+config["turtlebot_config"]["1"]["password"] = 'vclab201703'
+config["turtlebot_config"]["1"]["roslanuch"] = 'roslaunch turtlebot3_bringup turtlebot3_robot.launch'
+config["turtlebot_config"]["1"]["complete"] = True
+
+config["turtlebot_config"]["2"]["ip"] = '192.168.50.55'
+config["turtlebot_config"]["2"]["username"] = 'ubuntu'
+config["turtlebot_config"]["2"]["password"] = 'vclab201703'
+config["turtlebot_config"]["2"]["roslanuch"] = 'roslaunch turtlebot3_bringup turtlebot3_robot.launch'
+config["turtlebot_config"]["1"]["complete"] = True
+
+'''
+roscore config 추가 
+'''
+# turtlebot을 직접 조작하는 terminal 명령어(terminal_2) 추가해야함..
+# roscore의 set_master_uri의 ip 주소 확인 필요
+config["roscore"] = dict()
+config["roscore"]["1"] = dict()
+config["roscore"]["2"] = dict()
+config["roscore"]["1"]["terminal_1"] = dict()
+config["roscore"]["1"]["terminal_2"] = dict()
+config["roscore"]["2"]["terminal_1"] = dict()
+config["roscore"]["2"]["terminal_2"] = dict()
+config["roscore"]["1"]["terminal_1"]["operation"] = "set ChocolateyInstall=c://opt//chocolatey && " \
+                                                    "c://opt//ros//melodic//x64//setup.bat && " \
+                                                    "c://ws//turtlebot3//devel//setup.bat && " \
+                                                    "roscore --port 11311"
+config["roscore"]["1"]["terminal_1"]["complete"] = True
+config["roscore"]["1"]["terminal_2"]["operation"] = "set ROS_MASTER_URI=http://192.168.50.192:11311/ && " \
+                                                    "set ChocolateyInstall=c://opt//chocolatey && " \
+                                                    "c://opt//ros//melodic//x64//setup.bat && " \
+                                                    "c://ws//turtlebot3//devel//setup.bat && " \
+                                                    "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c:\ws\maps\map_01.yaml"
+config["roscore"]["1"]["terminal_2"]["complete"] = True
+config["roscore"]["2"]["terminal_1"]["operation"] = "set ChocolateyInstall=c://opt//chocolatey && " \
+                                                    "c://opt//ros//melodic//x64//setup.bat && " \
+                                                    "c://ws//turtlebot3//devel//setup.bat && " \
+                                                    "roscore --port 11312"
+config["roscore"]["2"]["terminal_1"]["complete"] = True
+config["roscore"]["2"]["terminal_2"]["operation"] = "set ROS_MASTER_URI=http://192.168.50.192:11312/ && " \
+                                                    "set ChocolateyInstall=c://opt//chocolatey && " \
+                                                    "c://opt//ros//melodic//x64//setup.bat && " \
+                                                    "c://ws//turtlebot3//devel//setup.bat && " \
+                                                    "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c:\ws\maps\map_01.yaml"
+config["roscore"]["2"]["terminal_2"]["complete"] = True
+
+
 
 #### Camera ID #####
 # DEV_000F310382ED (Reflection Low) #

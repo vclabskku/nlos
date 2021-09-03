@@ -14,7 +14,11 @@ import os
 import time
 import json
 import numpy as np
-
+import paramiko
+import threading
+import subprocess
+import asyncio
+import _thread
 
 class Collector():
 
@@ -41,7 +45,65 @@ class Collector():
         except OSError:
             pass
 
+    def initialize_roscore(self, turtlebot_num='1'):
+        os.system('killall -9 roscore')
+        _thread.start_new_thread(os.system,
+                                 (self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],))
+
+        # proc = subprocess.Popen(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],
+        #                         stdout=subprocess.PIPE)
+        # proc.communicate()
+
+        # os.system(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"])
+        # self.config["roscore"][turtlebot_num]["terminal_1"]["complete"] = False
+
+    def initialize_turtlebot(self, turtlebot_num='1'):
+        turtlebot = paramiko.SSHClient()
+        turtlebot.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+        turtlebot.connect(self.config["turtlebot_config"][turtlebot_num]["ip"], port='22',
+                          username=self.config["turtlebot_config"][turtlebot_num]["username"],
+                          password=self.config["turtlebot_config"][turtlebot_num]["password"])
+        stdin, stdout, stderr = turtlebot.exec_command(
+            self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
+        # self.config["turtlebot_config"]["1"]["complete"] = False
+
+    def initialize_map(self, turtlebot_num='1'):
+        _thread.start_new_thread(os.system,
+                                 (self.config["roscore"][turtlebot_num]["terminal_2"]["operation"],))
+
+        # os.system(self.config["roscore"][turtlebot_num]["terminal_2"]["operation"])
+        # self.config["roscore"][turtlebot_num]["terminal_2"]["complete"] = False
+
+    def initialize_roscore_set(self):
+        for i in self.config["turtlebot_config"]["using_list"]:
+            print('initialize roscore for turtlebot-'+i)
+            roscore = threading.Thread(target=self.initialize_roscore(), args=(i), daemon=True)
+            roscore.start()
+            time.sleep(20)
+            # if not(self.config["roscore"][i]["terminal_1"]["complete"]):
+            #     print(i + "-th roscore error")
+            #     exit()
+
+            print('\n\n\n\ninitialize turtlebot-'+i)
+            turtlebot = threading.Thread(target=self.initialize_turtlebot(), args=(i), daemon=True)
+            turtlebot.start()
+            time.sleep(20)
+            # if not(self.config["turtlebot_config"][i]["complete"]):
+            #     print(i + "-th turtlebot error")
+            #     exit()
+
+            print('\n\n\n\ninitialize map for turtlebot-'+i)
+            map = threading.Thread(target=self.initialize_map(), args=(i), daemon=True)
+            map.start()
+            time.sleep(20)
+            # if not(self.config["roscore"][i]["terminal_2"]["complete"]):
+            #     print(i + "-th roscore error")
+            #     exit()
+
     def collect(self):
+        self.initialize_roscore_set()
+        print('initialize_finish')
+        exit()
 
         whole_time = 0.0
         time_count = 0

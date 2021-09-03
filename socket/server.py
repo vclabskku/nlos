@@ -1,45 +1,44 @@
 from socket import *
-import pickle as pkl
-import random
-import keyboard
-serverSock = socket(AF_INET, SOCK_STREAM)
-
-print(serverSock.getsockopt(SOL_SOCKET, SO_SNDBUF))
-serverSock.setsockopt(SOL_SOCKET, SO_SNDBUF, 1000000)
-serverSock.setsockopt(SOL_SOCKET, SO_RCVBUF, 1000000)
-print(serverSock.getsockopt(SOL_SOCKET, SO_SNDBUF))
-
-serverSock.bind(('192.168.50.192', 8888))
-serverSock.listen(1)
+import time
 
 
-def sendmessage(connectionSock, n):
-    if n == 0 :
-        connectionSock.send("hi how are you?".encode())
-    else:
-        connectionSock.send("fuck".encode())
+class ServerCommand:
+    def __init__(self, host, port, recv_size=1024):
+        self.port = port
+        self.host = host
+        self.recv_size = recv_size
+
+        print("preparing server")
+        self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock.bind((self.host, self.port))
+        self.sock.listen(1)
+        print("server start")
+
+        self.connectionSock, self.client_addr = self.sock.accept()
+
+        print(f"{str(self.client_addr)} is connected")
+
+    def send_command(self, command):
+
+        self.connectionSock.send(command.encode('utf-8'))
+        print(f"send data {command}")
+
+        while True:
+            recvData = self.connectionSock.recv(1024).decode('utf-8')
+
+            if recvData == 'rf_end':
+                print(recvData)
+                break
+        
+        return recvData
 
 
-while True:
-    try:
-        connectionSock, addr = serverSock.accept()
-        print("접속 IP: {}".format(str(addr)))
-        sdata = connectionSock.recv(1024)
-        data = pkl.loads(sdata)
+if __name__ == '__main__':
+    
+    host = "192.168.50.174"
+    port = 8081
+    server = ServerCommand(host, port)
 
-    except:
-        continue
-    a = random.randint(0,5)
-    if a > 2:
-        sendmessage(connectionSock, 0)
-    else:
-        sendmessage(connectionSock, 1)
-
-    print("IP {}의 메세지 : {}".format(str(addr), data))
-
-    connectionSock.send("Hello, fuck you too!".encode("utf-8"))
-
-    print("Complete Sending Message")
-
-
-
+    while True:
+        recv = server.send_command('rf')
+        time.sleep(10)

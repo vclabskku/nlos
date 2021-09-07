@@ -15,16 +15,18 @@ import time
 import json
 import numpy as np
 import paramiko
-import threading
-import subprocess
-import asyncio
-import _thread
+from multiprocessing import Process, Manager
+from subprocess import Popen, PIPE
 
 class Collector():
 
     def __init__(self, config):
 
         self.config = config
+
+        self.processes_list = self.initialize_roscore_set()
+        print('initialize_finish')
+
         self.light = Light(self.config["light_config"])
         self.turtlebot = Turtlebot(self.config["turtlebot_config"])
         self.cmos = CMOS(self.config["cmos_config"])
@@ -41,14 +43,21 @@ class Collector():
         except OSError:
             pass
 
-    def initialize_roscore(self, turtlebot_num='1'):
-        threading.Thread(target=os.system,
-                         args=(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],),
-                         daemon=True)
-        # _thread.start_new_thread(os.system,
-        #                          (self.config["roscore"][turtlebot_num]["terminal_1"]["operation"],))
+    def execute(self, command):
+        process = Popen(command, stdout=PIPE, shell=True)
+        while True:
+            line = process.stdout.readline().rstrip()
+            if not line:
+                continue
+            yield line
 
-    def initialize_turtlebot(self, turtlebot_num='1'):
+    def initialize_roscore(self, turtlebot_num, manager):
+        for path in self.execute(self.config["roscore"][turtlebot_num]["terminal_1"]["operation"]):
+            print(path.decode('utf-8'))
+            if "started core service [/rosout]" in path.decode('utf-8'):
+                manager[0] = True
+
+    def initialize_turtlebot(self, turtlebot_num, manager):
         retries = 10
         turtlebot = paramiko.SSHClient()
         turtlebot.set_missing_host_key_policy(paramiko.AutoAddPolicy)
@@ -62,44 +71,57 @@ class Collector():
                 break
             except:
                 pass
-        for x in range(retries):
-            stdin, stdout, stderr = turtlebot.exec_command(
-                self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
-        # stdin, stdout, stderr = turtlebot.exec_command(
-        #     self.config["turtlebot_config"]["1"]["roslanuch"], get_pty=True)
 
-    def initialize_map(self, turtlebot_num='1'):
-        _thread.start_new_thread(os.system,
-                                 (self.config["roscore"][turtlebot_num]["terminal_2"]["operation"],))
+        for x in range(retries):
+            try:
+                stdin, stdout, stderr = turtlebot.exec_command(
+                    self.config["turtlebot_config"][turtlebot_num]["roslanuch"], get_pty=True)
+                for line in iter(stdout.readline, ""):
+                    print(line, end="")
+                    if 'Calibration End' in line:
+                        manager[1] = True
+                break
+            except:
+                pass
+
+    def initialize_map(self, turtlebot_num, manager):
+        for path in self.execute(self.config["roscore"][turtlebot_num]["terminal_2"]["operation"]):
+            print(path.decode('utf-8'))
+            if "process[rviz-5]: started with pid" in path.decode('utf-8'):
+                manager[2] = True
 
     def initialize_roscore_set(self):
+        manager_list = []
+        for _ in self.config["turtlebot_config"]["using_list"]:
+            manager_list.append(Manager().list([False, False, False]))
+        process_list = []
         for i in self.config["turtlebot_config"]["using_list"]:
-            print('initialize roscore for turtlebot-'+i)
-            threading.Thread(target=os.system,
-                             args=(self.config["roscore"][i]["terminal_1"]["operation"],),
-                             daemon=True)
-            # roscore = threading.Thread(target=self.initialize_roscore(), args=(i), daemon=True)
-            # roscore.start()
-            time.sleep(30)
+            manager = Manager().list([False, False, False])
 
-            print('\ninitialize turtlebot-'+i)
-            # threading.Thread(target=self.initialize_turtlebot, args=(i,), daemon=True)
-            turtlebot = threading.Thread(target=self.initialize_turtlebot(), args=(i), daemon=True)
+            roscore = Process(target=self.initialize_roscore, args=(i, manager))
+            turtlebot = Process(target=self.initialize_turtlebot, args=(i, manager))
+            map = Process(target=self.initialize_map, args=(i, manager))
+
+            roscore.start()
+            while (True):
+                if manager[0] == True:
+                    break
             turtlebot.start()
-            time.sleep(30)
+            while (True):
+                if manager[1] == True:
+                    break
+            map.start()
+            while (True):
+                if manager[2] == True:
+                    break
 
-            print('\ninitialize map for turtlebot-'+i)
-            # threading.Thread(target=os.system,
-            #                  args=(self.config["roscore"][i]["terminal_2"]["operation"],),
-            #                  daemon=True)
-            _thread.start_new_thread(os.system,
-                                     (self.config["roscore"][i]["terminal_2"]["operation"],))
-            # map = threading.Thread(target=self.initialize_map(), args=(i), daemon=True)
-            # map.start()
-            time.sleep(30)
+            process_list.append(roscore)
+            process_list.append(turtlebot)
+            process_list.append(map)
+        return process_list
 
     def collect(self):
-        # self.initialize_roscore_set()
+        # self.processes_list = self.initialize_roscore_set()
         # print('initialize_finish')
 
         whole_time = 0.0
@@ -172,7 +194,7 @@ class Collector():
             print("T{}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 5, "Detector"))
-            gt_bboxes = self.detector.detect(gt_rgb_image)
+            # gt_bboxes = self.detector.detect(gt_rgb_image)
 
             ###
             ### Set light for laser
@@ -205,7 +227,6 @@ class Collector():
                 print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
                     self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                     9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
-                time.sleep(1)
 
                 reflection_images = self.cmos.get_reflection_images()
 
@@ -248,7 +269,8 @@ class Collector():
             print("T{}/{:4d}|S{:2d}:{:12s}|Save the data".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 11, "Data"))
-            this_data_folder = os.path.join(self.data_folder, "D{:08d}".format(data_count + 1))
+            indices_str = "_".join(["{:08d}".format(index) for index in self.turtlebot.indices])
+            this_data_folder = os.path.join(self.data_folder, "D{}".format(indices_str))
             try:
                 os.mkdir(this_data_folder)
             except OSError:
@@ -292,14 +314,13 @@ class Collector():
 
             data_json = dict()
             data_json["gt_brightness"] = self.config["light_config"]["gt_brightness"]
-            data_json["gt_bboxes"] = gt_bboxes
+            # data_json["gt_bboxes"] = gt_bboxes
             data_json["turtlebot_position"] = turtlebot_position
             data_json_path = os.path.join(this_data_folder, "gt_data.json")
 
             with open(data_json_path, "w") as fp:
                 json.dump(data_json, fp, indent=4, sort_keys=True)
             time_count += 1
-            data_count += 1
             whole_time += time.time() - start_time
             print("T{}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,

@@ -14,9 +14,9 @@ config["turtlebot_config"]["initial_indices"] = [0, 0]
 # config["turtlebot_config"]["area_range"] = [[0.0, -0.6], [1.6, -1.6]]
 config["turtlebot_config"]["area_range"] = [[1.0, -1.0], [2.0, -2.0]]
 config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
-config["turtlebot_config"]["spatial_step"] = 0.1
-config["turtlebot_config"]["angle_step"] = 60.0
-config["turtlebot_config"]["min_distance"] = 0.25
+config["turtlebot_config"]["spatial_step"] = 1.0
+config["turtlebot_config"]["angle_step"] = 180.0
+config["turtlebot_config"]["min_distance"] = 0.50
 config["turtlebot_config"]["ports"] = ["11311", "11312"]
 config["turtlebot_config"]["master_ip"] = "192.168.50.192"
 config["turtlebot_config"]["num_turtlebots"] = 2
@@ -26,8 +26,8 @@ turtlebot config 추가
 config["turtlebot_config"]["using_list"] = ['1', '2']
 config["turtlebot_config"]["1"] = dict()
 config["turtlebot_config"]["2"] = dict()
-config["turtlebot_config"]["1"]["ip"] = '192.168.50.116'
-config["turtlebot_config"]["1"]["username"] = 'turtlebot-01'
+config["turtlebot_config"]["1"]["ip"] = '192.168.50.124'
+config["turtlebot_config"]["1"]["username"] = 'ubuntu'
 config["turtlebot_config"]["1"]["password"] = 'vclab201703'
 config["turtlebot_config"]["1"]["roslanuch"] = 'roslaunch turtlebot3_bringup turtlebot3_robot.launch'
 
@@ -65,11 +65,6 @@ config["roscore"]["2"]["terminal_2"]["operation"] = "set ChocolateyInstall=c://o
                                                     "set ROS_MASTER_URI=http://192.168.50.192:11312/ && " \
                                                     "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c://ws//maps//map_02.yaml"
 
-
-config["turtlebot_config"]["min_distance"] = 0.25
-config["turtlebot_config"]["ports"] = ["11311", "11312"]
-config["turtlebot_config"]["marster_ip"] = "192.168.50.192"
-
 #### Camera ID #####
 # DEV_000F310382ED (Reflection Low) #
 # DEV_000F310382EC (GT)#
@@ -78,7 +73,8 @@ config["turtlebot_config"]["marster_ip"] = "192.168.50.192"
 config["cmos_config"] = dict()
 config["cmos_config"]["cam_ids"] = ["DEV_000F310382EB", "DEV_000F310382ED"]
 config["cmos_config"]["iterations"] = 3
-config["cmos_config"]["exposure_time"] = 5.0e+5 # micro seconds
+# config["cmos_config"]["exposure_time"] = 5.0e+5 # micro seconds
+config["cmos_config"]["exposure_time"] = 5.0e+3 # micro seconds
 config["cmos_config"]["timeout_time"] = int(5.0e+3) # milli seconds
 
 config["depth_config"] = dict()
@@ -88,7 +84,7 @@ config["depth_config"]["something"] = None
 # The bdrate must be 9600
 # The laser power must be 0 to 100
 config["laser_config"] = dict()
-config["laser_config"]["cport_nr"] = 2
+config["laser_config"]["cport_nr"] = 1
 config["laser_config"]["bdrate"] = 9600
 config["laser_config"]["laser1"] = 100
 config["laser_config"]["laser2"] = 76
@@ -99,7 +95,7 @@ config["laser_config"]["laser3"] = 85
 # config["laser_config"]["laser3"] = 5
 
 config["galvanometer_config"] = dict()
-config["galvanometer_config"]["num_grid"] = 5
+config["galvanometer_config"]["num_grid"] = 2
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
 # config for light
@@ -138,6 +134,7 @@ config["detector_config"]["check_point"] = "output/novel/model_0004999.pth"
 #
 # config['echo_config']['folder_path'] = 'sound/data/'
 
-collector = Collector(config)
-# collector.initialize()
-collector.collect()
+if __name__ == '__main__':
+    collector = Collector(config)
+    # collector.initialize()
+    collector.collect()

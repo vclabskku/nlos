@@ -116,9 +116,16 @@ class Turtlebot():
             # move the 2nd turtlebot
             if done:
                 # if the 1st turtlebot completes one cycle, move the 2nd turtlebot and initialize the 1st one
-                self.indices[1] += 1
                 self.indices[0] = 0
 
+                # before move the 2nd, move the 1st to the dummy point to prevent collision
+                x = self.config["dummy_points"][0]
+                y = self.config["dummy_points"][1]
+                a = 0.0
+
+                self.command(x, y, a)
+
+                # move the 2nd turtlebot
                 x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
                 y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
                 a = self.angles[-(self.indices[1] % self.l_a) - 1]
@@ -127,6 +134,21 @@ class Turtlebot():
                 self.current_xs[1] = x
                 self.current_ys[1] = y
                 self.current_as[1] = a
+
+                self.indices[1] += 1
+
+                # move the 1st turtlebot to the init point
+                x = self.x_coords[self.indices[0] // (self.l_y * self.l_a)]
+                y = self.y_coords[(self.indices[0] // (self.l_a)) % self.l_y]
+                a = self.angles[self.indices[0] % self.l_a]
+
+                self.command(x, y, a)
+                self.current_xs[0] = x
+                self.current_ys[0] = y
+                self.current_as[0] = a
+
+                self.indices[0] += 1
+                done = self.indices[0] >= self.l_x * self.l_y * self.l_a
 
             done = done and (self.indices[1] >= self.l_x * self.l_y * self.l_a)
         else:

@@ -4,10 +4,15 @@ config = dict()
 
 config["data_config"] = dict()
 config["data_config"]["dst_folder"] = "d:\\2021_01" # human_02
+
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
-# string with 0! (You have to subtract 1 to wanted number!)
+################################################################################
+# Important Parameters
+################################################################################
+# string with 0! (You have to subtract 1 to the target number!)
 config["turtlebot_config"]["initial_indices"] = [0, 0]
+################################################################################
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0
 # righttop: 2.1, -2.1, 0.0
@@ -19,11 +24,13 @@ config["turtlebot_config"]["angle_step"] = 180.0
 config["turtlebot_config"]["min_distance"] = 0.50
 config["turtlebot_config"]["ports"] = ["11311", "11312"]
 config["turtlebot_config"]["master_ip"] = "192.168.50.192"
-config["turtlebot_config"]["num_turtlebots"] = 2
+config["turtlebot_config"]["num_turtlebots"] = len(config["turtlebot_config"]["initial_indices"])
+config["turtlebot_config"]["dummy_points"] = [[0.0, 0.0], [0.0, 0.0]]
 '''
 turtlebot config 추가
 '''
-config["turtlebot_config"]["using_list"] = ['1', '2']
+config["turtlebot_config"]["using_list"] = ['{}'.format(i + 1)
+                                            for i in range(config["turtlebot_config"]["num_turtlebots"])]
 config["turtlebot_config"]["1"] = dict()
 config["turtlebot_config"]["2"] = dict()
 config["turtlebot_config"]["1"]["ip"] = '192.168.50.124'

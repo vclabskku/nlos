@@ -121,9 +121,6 @@ class Collector():
         return process_list
 
     def collect(self):
-        # self.processes_list = self.initialize_roscore_set()
-        # print('initialize_finish')
-
         whole_time = 0.0
         time_count = 0
         data_count = self.config["turtlebot_config"]["initial_indices"]
@@ -151,8 +148,8 @@ class Collector():
         #     print("Initialization ...")
         #     self.initialize()
 
-        self.laser.turn_off()
-        self.light.light_for_gt()
+        # self.laser.turn_off()
+        # self.light.light_for_gt()
         while not turtlebot_done:
             start_time = time.time()
             ###
@@ -177,7 +174,6 @@ class Collector():
             print("T{}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 3, "Depth"))
-            # gt_rgb_image = self.cmos.get_gt_image()
             gt_rgb_image = self.depth.get_rgb()
 
             ###

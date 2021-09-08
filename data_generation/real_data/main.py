@@ -17,11 +17,12 @@ config["turtlebot_config"]["initial_indices"] = [0, 0]
 # leftbottom: 0.6, -1.0, 0.0
 # righttop: 2.1, -2.1, 0.0
 # config["turtlebot_config"]["area_range"] = [[0.0, -0.6], [1.6, -1.6]]
-config["turtlebot_config"]["area_range"] = [[1.0, -1.0], [2.0, -2.0]]
+# config["turtlebot_config"]["area_range"] = [[1.0, -1.0], [2.0, -2.0]]
+config["turtlebot_config"]["area_range"] = [[0.80, -0.80], [2.80, -2.40]]
 config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
-config["turtlebot_config"]["spatial_step"] = 1.0
-config["turtlebot_config"]["angle_step"] = 180.0
-config["turtlebot_config"]["min_distance"] = 0.50
+config["turtlebot_config"]["spatial_step"] = 0.1
+config["turtlebot_config"]["angle_step"] = 20.0
+config["turtlebot_config"]["min_distance"] = 0.35
 config["turtlebot_config"]["ports"] = ["11311", "11312"]
 config["turtlebot_config"]["master_ip"] = "192.168.50.192"
 config["turtlebot_config"]["num_turtlebots"] = len(config["turtlebot_config"]["initial_indices"])

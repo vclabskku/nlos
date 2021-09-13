@@ -1,5 +1,6 @@
 import cv2
 from data_generation.real_data.cmos.vimba import *
+import time
 # from data_generation.real_data.cmos.vimba.c_binding import *
 import numpy as np
 
@@ -28,21 +29,13 @@ class CMOS():
         self.timeout_time = self.config["timeout_time"]
 
         # TODO: we have to initialize cams only ones here!
-        # self.vimba = Vimba.get_instance()
-        # self.cams = list()
-        # with Vimba.get_instance() as vimba:
-        #     for cam_id in self.camera_ids:
-        #         try:
-        #             cam = vimba.get_camera_by_id(cam_id)
-        #             cam.open()
-        #             self.setup_camera(cam)
-        #             self.cams.append(cam)
-        #         except VimbaCameraError:
-        #             print('Failed to access Camera {}. Abort.'.format(cam_id))
-
-    # def __del__(self):
-    #
-    #     self.vimba.close()
+        with Vimba.get_instance() as vimba:
+            for cam_id in self.camera_ids:
+                try:
+                    with vimba.get_camera_by_id(cam_id) as cam:
+                        self.setup_camera(cam)
+                except VimbaCameraError:
+                    print('Failed to access Camera {}. Abort.'.format(cam_id))
 
     def setup_camera(self, cam: Camera):
         # with cam:
@@ -72,6 +65,7 @@ class CMOS():
             #
             # for i in range(count):
             for cam_id in self.camera_ids:
+                start_time = time.time()
                 with vimba.get_camera_by_id(cam_id) as cam:
                     self.setup_camera(cam)
 
@@ -90,7 +84,6 @@ class CMOS():
                     #         print('/// SFNC Namespace : {}'.format(feature.get_sfnc_namespace()))
                     #         print('/// Unit           : {}'.format(feature.get_unit()))
                     #         print('/// Value          : {}\n'.format(str(value)))
-
                     while True:
                         frame = cam.get_frame(self.timeout_time)
                         if frame.get_status() == FrameStatus.Complete:
@@ -100,6 +93,8 @@ class CMOS():
                             break
                     # frame = frame[:530]
                     frame_list.append(frame)
+                    end_time = time.time() - start_time
+                    print("taking a picture ... {:.5f} secs".format(end_time))
 
         # for cam in self.cams:
         #     while True:
@@ -123,7 +118,7 @@ if __name__ == "__main__":
     config["cmos_config"] = dict()
     config["cmos_config"]["cam_ids"] = ["DEV_000F310382EB", "DEV_000F310382ED"]
     config["cmos_config"]["iterations"] = 3
-    config["cmos_config"]["exposure_time"] = 2.0e+6  # micro seconds
+    config["cmos_config"]["exposure_time"] = 5.0e+5  # micro seconds
     config["cmos_config"]["timeout_time"] = int(5.0e+3)  # milli seconds
 
     cmos = CMOS(config=config["cmos_config"])

@@ -13,13 +13,27 @@ class Depth():
     def __init__(self, config):
         self.config = config
 
-    def get_depth_image(self):
-        # Create a pipeline
-        pipeline = rs.pipeline()
+        self.pipeline = rs.pipeline()
+
         # Create a config and configure the pipeline to stream
         #  different resolutions of color and depth streams
         config = rs.config()
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        # config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 6)
+        config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 6)
+        # Start streaming
+        self.profile = self.pipeline.start(config)
+
+    def __del__(self):
+        self.pipeline.stop()
+
+    def get_depth_image(self):
+        # Create a pipeline
+        # pipeline = rs.pipeline()
+        # Create a config and configure the pipeline to stream
+        #  different resolutions of color and depth streams
+        # config = rs.config()
+        # config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         # if not os.path.exists('./frame'):
         #    os.mkdir('./frame')
         # count = len(os.walk('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth').__next__()[1])
@@ -29,16 +43,16 @@ class Depth():
         # config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 6)
 
         # Start streaming
-        profile = pipeline.start(config)
+        # profile = pipeline.start(config)
         # Getting the depth sensor's depth scale (see rs-align example for explanation)
-        depth_sensor = profile.get_device().first_depth_sensor()
-        depth_scale = depth_sensor.get_depth_scale()
+        # depth_sensor = profile.get_device().first_depth_sensor()
+        # depth_scale = depth_sensor.get_depth_scale()
         # print("Depth Scale is: ", depth_scale)
 
         # We will be removing the background of objects more than
         #  clipping_distance_in_meters meters away
-        clipping_distance_in_meters = 5  # 1 meter
-        clipping_distance = clipping_distance_in_meters / depth_scale
+        # clipping_distance_in_meters = 5  # 1 meter
+        # clipping_distance = clipping_distance_in_meters / depth_scale
         # Create an align object
         # rs.align allows us to perform alignment of depth frames to others frames
         # The "align_to" is the stream type to which we plan to align depth frames.
@@ -46,7 +60,7 @@ class Depth():
         try:
             # Get frameset of color and depthprint('4')
 
-            frames = pipeline.wait_for_frames()
+            frames = self.pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
 
             # Align the depth frame to color frame
@@ -61,9 +75,8 @@ class Depth():
             depth_image = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
             # Remove background - Set pixels further than clipping_distance to grey
-            grey_color = 153
-            # depth_image_3d = np.dstack(
-            #    (depth_image, depth_image, depth_image))  # depth image is 1 channel, color is 3 channels
+            # grey_color = 153
+            # depth_image_3d = np.dstack((depth_image, depth_image, depth_image))  # depth image is 1 channel, color is 3 channels
             # bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
 
             # Render images
@@ -84,21 +97,21 @@ class Depth():
             print('Exception Error')
 
 
-        finally:
-            pipeline.stop()
+        # finally:
+        #     pipeline.stop()
 
     def get_rgb(self):
         # Create a pipeline
-        pipeline = rs.pipeline()
+        # pipeline = rs.pipeline()
 
         # Create a config and configure the pipeline to stream
         #  different resolutions of color and depth streams
-        config = rs.config()
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        # config = rs.config()
+        # config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        # config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
         # Start streaming
-        profile = pipeline.start(config)
+        # profile = pipeline.start(config)
 
         # Create an align object
         # rs.align allows us to perform alignment of depth frames to others frames
@@ -106,7 +119,7 @@ class Depth():
         # Streaming loop
         try:
             # Get frameset of color and depth
-            frames = pipeline.wait_for_frames()
+            frames = self.pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
 
             # Align the depth frame to color frame
@@ -118,7 +131,7 @@ class Depth():
             if not color_frame:
                 print("ERROR : NO FRAME")
                 return
-            colorizer = rs.colorizer()
+            # colorizer = rs.colorizer()
             color_image = np.asanyarray(color_frame.get_data())
             # print(color_image)
 
@@ -126,12 +139,14 @@ class Depth():
             cv2.imwrite('{}/rgb_image.png'.format(filename), color_image)
 
             return color_image
+        except:
+            print('Exception Error')
 
-        finally:
-            pipeline.stop()
+        # finally:
+        #     pipeline.stop()
 
 
 if __name__ == "__main__":
     depth = Depth(config=None)
-    # depth.get_depth_image()
-    depth.get_rgb()
+    a = depth.get_depth_image()
+    b = depth.get_rgb()

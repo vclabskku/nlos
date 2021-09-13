@@ -9,6 +9,7 @@ class Laser():
 
     def __del__(self):
         self.laser_off()
+        # pass
 
     def laser_on(self):
         result = os.system(
@@ -45,15 +46,15 @@ class Laser():
 if __name__ == "__main__":
     config = dict()
     config["laser_config"] = dict()
-    config["laser_config"]["cport_nr"] = 0
+    config["laser_config"]["cport_nr"] = 2
     config["laser_config"]["bdrate"] = 9600
-    config["laser_config"]["laser1"] = 100
-    config["laser_config"]["laser2"] = 76
-    config["laser_config"]["laser3"] = 85
+    config["laser_config"]["laser1"] = 30
+    config["laser_config"]["laser2"] = 30
+    config["laser_config"]["laser3"] = 30
 
 
     laser = Laser(config=config["laser_config"])
-    laser.turn_on()
-    laser.laser_on()
-    # laser.laser_off()
-    # laser.turn_off()
+    # laser.turn_on()
+    # laser.laser_on()
+    laser.laser_off()
+    laser.turn_off()

@@ -30,14 +30,15 @@ class CMOS():
         # TODO: we have to initialize cams only ones here!
         # self.vimba = Vimba.get_instance()
         # self.cams = list()
-        # for cam_id in self.camera_ids:
-        #     try:
-        #         cam = self.vimba.get_camera_by_id(cam_id)
-        #     except VimbaCameraError:
-        #         abort('Failed to access Camera {}. Abort.'.format(cam_id))
-        #
-        #     self.setup_camera(cam)
-        #     self.cams.append(cam)
+        # with Vimba.get_instance() as vimba:
+        #     for cam_id in self.camera_ids:
+        #         try:
+        #             cam = vimba.get_camera_by_id(cam_id)
+        #             cam.open()
+        #             self.setup_camera(cam)
+        #             self.cams.append(cam)
+        #         except VimbaCameraError:
+        #             print('Failed to access Camera {}. Abort.'.format(cam_id))
 
     # def __del__(self):
     #
@@ -99,6 +100,18 @@ class CMOS():
                             break
                     # frame = frame[:530]
                     frame_list.append(frame)
+
+        # for cam in self.cams:
+        #     while True:
+        #         frame = cam.get_frame(self.timeout_time)
+        #         if frame.get_status() == FrameStatus.Complete:
+        #             frame.convert_pixel_format(PixelFormat.Bgr8)
+        #             # frame.convert_pixel_format(PixelFormat.BayerBG16)
+        #             frame = frame.as_numpy_ndarray()
+        #             break
+        #     # frame = frame[:530]
+        #     frame_list.append(frame)
+
         return frame_list
 
 

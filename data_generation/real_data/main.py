@@ -3,7 +3,7 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "d:\\2021_01" # human_02
+config["data_config"]["dst_folder"] = "d:\\test_01" # human_02
 
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
@@ -96,7 +96,7 @@ config["depth_config"]["something"] = None
 # The bdrate must be 9600
 # The laser power must be 0 to 100
 config["laser_config"] = dict()
-config["laser_config"]["cport_nr"] = 1
+config["laser_config"]["cport_nr"] = 2
 config["laser_config"]["bdrate"] = 9600
 config["laser_config"]["laser1"] = 100
 config["laser_config"]["laser2"] = 76

@@ -12,6 +12,10 @@ config["turtlebot_config"] = dict()
 ################################################################################
 # string with 0! (You have to subtract 1 to the target number!)
 config["turtlebot_config"]["initial_indices"] = [0, 0]
+config["sensor_config"] = dict()
+config["sensor_config"]["use_laser"] = True
+config["sensor_config"]["use_rf"] = True
+config["sensor_config"]["use_sound"] = True
 ################################################################################
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0
@@ -141,6 +145,17 @@ config["detector_config"]["check_point"] = "output/novel/model_0004999.pth"
 # config['echo_config']['record_duration'] = 1
 #
 # config['echo_config']['folder_path'] = 'sound/data/'
+
+
+'''
+    소켓 통신 관련 config
+'''
+
+server = dict()
+server['ip'] = "192.168.50.192"
+server['port'] = 8888
+
+config['server'] = server
 
 if __name__ == '__main__':
     collector = Collector(config)

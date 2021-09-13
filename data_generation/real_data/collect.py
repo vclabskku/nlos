@@ -5,6 +5,7 @@ from data_generation.real_data.depth.depth import Depth
 from data_generation.real_data.detector.detector import Detector
 from data_generation.real_data.laser.laser import Laser
 from data_generation.real_data.galvanometer.galvanometer import Galvanometer
+from data_generation.real_data.server import ServerCommand
 
 #from data_generation.real_data.sound.Echo import Echo
 #from data_generation.real_data.sound.Arduino import Arduino
@@ -17,6 +18,7 @@ import numpy as np
 import paramiko
 from multiprocessing import Process, Manager
 from subprocess import Popen, PIPE
+import logging
 
 class Collector():
 
@@ -42,6 +44,23 @@ class Collector():
             os.mkdir(self.data_folder)
         except OSError:
             pass
+        self.server = ServerCommand(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
+
+        self.set_logger()
+
+    def set_logger(self):
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
+        stream_handler.setLevel(logging.DEBUG)
+        logger.addHandler(stream_handler)
+
+        file_handler = logging.FileHandler(self.data_folder + f'/main_computer_{time.strftime("%m%d-%H%M")}.log')
+        file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
+        file_handler.setLevel(logging.DEBUG)
+        logger.addHandler(file_handler)
+        logging.info(f"LOG DIR SET :{self.data_folder}")
 
     def execute(self, command):
         process = Popen(command, stdout=PIPE, shell=True)
@@ -148,14 +167,15 @@ class Collector():
         #     print("Initialization ...")
         #     self.initialize()
 
-        # self.laser.turn_off()
-        # self.light.light_for_gt()
+        if self.config["sensor_config"]["use_laser"]:
+            self.laser.turn_off()
+        self.light.light_for_gt()
         while not turtlebot_done:
             start_time = time.time()
             ###
             ### Set light for gt
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 1, "Light"))
             self.light.light_for_gt()
@@ -163,7 +183,7 @@ class Collector():
             ###
             ### Move the object to a point
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Move".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Move".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 2, "Turtlebot"))
             turtlebot_done, turtlebot_position = self.turtlebot.step()
@@ -171,7 +191,7 @@ class Collector():
             ###
             ### Get gt rgb image
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 3, "Depth"))
             gt_rgb_image = self.depth.get_rgb()
@@ -179,7 +199,7 @@ class Collector():
             ###
             ### Get gt depth image
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 4, "Depth"))
             gt_depth_image = self.depth.get_depth_image()
@@ -187,15 +207,15 @@ class Collector():
             ###
             ### Get 2D object detection bboxes
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 5, "Detector"))
-            # gt_bboxes = self.detector.detect(gt_rgb_image)
+            gt_bboxes = self.detector.detect(gt_rgb_image)
 
             ###
             ### Set light for laser
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 6, "Light"))
             self.light.light_for_laser()
@@ -203,66 +223,69 @@ class Collector():
             ###
             ### Turn on laser
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 7, "Laser"))
-            self.laser.turn_on()
+            if self.config["sensor_config"]["use_laser"]:
+                self.laser.turn_on()
 
             ###
             ### Step on galvanometer for grid scanning
             ###
-            galvanometer_done = False
-            reflection_items = list()
-            while not galvanometer_done:
-                galvanometer_done, galvanometer_position = self.galvanometer.step()
-                print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
-                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    8, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
+            if self.config["sensor_config"]["use_laser"]:
+                galvanometer_done = False
+                reflection_items = list()
+                while not galvanometer_done:
+                    galvanometer_done, galvanometer_position = self.galvanometer.step()
+                    print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
+                        self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                        8, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
 
-                # get reflection image
-                print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
-                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
+                    # get reflection image
+                    print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
+                        self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                        9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
 
-                reflection_images = self.cmos.get_reflection_images()
+                    reflection_images = self.cmos.get_reflection_images()
 
-                # diff_images = np.array(reflection_images, dtype=np.float32) - \
-                #               np.array(self.avg_images[
-                #                            galvanometer_position[0] //
-                #                            self.config["galvanometer_config"]["num_grid"] +
-                #                            galvanometer_position[1] %
-                #                            self.config["galvanometer_config"]["num_grid"]], dtype=np.float32)
-                # # diff_images -= np.min(diff_images, axis=(2, 3), keepdims=True)
-                # diff_images_01 = np.abs(np.array(diff_images))
-                # diff_images_02 = np.array(np.array(diff_images)) - \
-                #                  np.min(np.array(diff_images), axis=(2, 3), keepdims=True)
-                # diff_images_03 = np.array(np.array(diff_images)) + 255.0
-                # # diff_images += 255.0
-                # diff_images_01 = diff_images_01 / np.max(diff_images_01, axis=(2, 3), keepdims=True)
-                # diff_images_02 = diff_images_02 / np.max(diff_images_02, axis=(2, 3), keepdims=True)
-                # diff_images_03 = diff_images_03 / (255.0 * 2)
-                # # diff_images /= (255.0 * 2)
-                # diff_images_01 = np.array(np.clip(diff_images_01 * 255.0, 0.0, 255.0), dtype=np.uint8)
-                # diff_images_02 = np.array(np.clip(diff_images_02 * 255.0, 0.0, 255.0), dtype=np.uint8)
-                # diff_images_03 = np.array(np.clip(diff_images_03 * 255.0, 0.0, 255.0), dtype=np.uint8)
+                    # diff_images = np.array(reflection_images, dtype=np.float32) - \
+                    #               np.array(self.avg_images[
+                    #                            galvanometer_position[0] //
+                    #                            self.config["galvanometer_config"]["num_grid"] +
+                    #                            galvanometer_position[1] %
+                    #                            self.config["galvanometer_config"]["num_grid"]], dtype=np.float32)
+                    # # diff_images -= np.min(diff_images, axis=(2, 3), keepdims=True)
+                    # diff_images_01 = np.abs(np.array(diff_images))
+                    # diff_images_02 = np.array(np.array(diff_images)) - \
+                    #                  np.min(np.array(diff_images), axis=(2, 3), keepdims=True)
+                    # diff_images_03 = np.array(np.array(diff_images)) + 255.0
+                    # # diff_images += 255.0
+                    # diff_images_01 = diff_images_01 / np.max(diff_images_01, axis=(2, 3), keepdims=True)
+                    # diff_images_02 = diff_images_02 / np.max(diff_images_02, axis=(2, 3), keepdims=True)
+                    # diff_images_03 = diff_images_03 / (255.0 * 2)
+                    # # diff_images /= (255.0 * 2)
+                    # diff_images_01 = np.array(np.clip(diff_images_01 * 255.0, 0.0, 255.0), dtype=np.uint8)
+                    # diff_images_02 = np.array(np.clip(diff_images_02 * 255.0, 0.0, 255.0), dtype=np.uint8)
+                    # diff_images_03 = np.array(np.clip(diff_images_03 * 255.0, 0.0, 255.0), dtype=np.uint8)
 
-                reflection_items.append([galvanometer_position, reflection_images,
-                                         # diff_images_01, diff_images_02, diff_images_03
-                                         ])
+                    reflection_items.append([galvanometer_position, reflection_images,
+                                             # diff_images_01, diff_images_02, diff_images_03
+                                             ])
 
             ###
             ### Turn off laser
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 10, "Laser"))
-            print("out")
-            self.laser.turn_off()
+            logging.info("out")
+            if self.config["sensor_config"]["use_laser"]:
+                self.laser.turn_off()
 
             ###
             ### save data
             ###
-            print("T{}/{:4d}|S{:2d}:{:12s}|Save the data".format(
+            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Save the data".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 11, "Data"))
             indices_str = "_".join(["{:08d}".format(index) for index in self.turtlebot.indices])
@@ -278,39 +301,61 @@ class Collector():
             gt_depth_image_path = os.path.join(this_data_folder, "gt_depth_image.png")
             cv2.imwrite(gt_depth_image_path, gt_depth_image)
 
-            for galvanometer_index, items in enumerate(reflection_items):
-                galvanometer_position = items[0]
-                reflection_images = items[1]
-                # diff_images_01 = items[2]
-                # diff_images_02 = items[3]
-                # diff_images_03 = items[4]
-                for cmos_index, reflection_image in enumerate(reflection_images):
-                    reflection_image_path = \
-                        os.path.join(this_data_folder, "reflection_image_Gx{:02d}_Gy{:02d}_C{:02d}.png".format(
-                            galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
-                    cv2.imwrite(reflection_image_path, reflection_image)
+            if self.config["sensor_config"]["use_laser"]:
+                for galvanometer_index, items in enumerate(reflection_items):
+                    galvanometer_position = items[0]
+                    reflection_images = items[1]
+                    # diff_images_01 = items[2]
+                    # diff_images_02 = items[3]
+                    # diff_images_03 = items[4]
+                    for cmos_index, reflection_image in enumerate(reflection_images):
+                        reflection_image_path = \
+                            os.path.join(this_data_folder, "reflection_image_Gx{:02d}_Gy{:02d}_C{:02d}.png".format(
+                                galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                        cv2.imwrite(reflection_image_path, reflection_image)
 
-                # for cmos_index, diff_image in enumerate(diff_images_01):
-                #     diff_image_path = \
-                #         os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_abs.png".format(
-                #             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
-                #     cv2.imwrite(diff_image_path, diff_image)
-                #
-                # for cmos_index, diff_image in enumerate(diff_images_02):
-                #     diff_image_path = \
-                #         os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_max.png".format(
-                #             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
-                #     cv2.imwrite(diff_image_path, diff_image)
-                #
-                # for cmos_index, diff_image in enumerate(diff_images_03):
-                #     diff_image_path = \
-                #         os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_normal.png".format(
-                #             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
-                #     cv2.imwrite(diff_image_path, diff_image)
+                    # for cmos_index, diff_image in enumerate(diff_images_01):
+                    #     diff_image_path = \
+                    #         os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_abs.png".format(
+                    #             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                    #     cv2.imwrite(diff_image_path, diff_image)
+                    #
+                    # for cmos_index, diff_image in enumerate(diff_images_02):
+                    #     diff_image_path = \
+                    #         os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_max.png".format(
+                    #             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                    #     cv2.imwrite(diff_image_path, diff_image)
+                    #
+                    # for cmos_index, diff_image in enumerate(diff_images_03):
+                    #     diff_image_path = \
+                    #         os.path.join(this_data_folder, "diff_image_Gx{:02d}_Gy{:02d}_C{:02d}_normal.png".format(
+                    #             galvanometer_position[0] + 1, galvanometer_position[1] + 1, cmos_index + 1))
+                    #     cv2.imwrite(diff_image_path, diff_image)
+
+
+            '''
+                rf 및 음장 데이서 수집 명령 전송
+            '''
+            parent_folder = os.path.basename(self.data_folder)
+            child_folder = os.path.basename(this_data_folder)
+
+            if self.config["sensor_config"]["use_rf"]:
+                logging.info("sending RF command")
+                recvData = self.server.send_command(f'rf-{parent_folder}/{child_folder}')
+                logging.info("recieved from RF operation >> ", recvData)
+
+            if self.config["sensor_config"]["use_sound"]:
+                logging.info("sending WAVE command")
+                recvData = self.server.send_command(f'wave-{parent_folder}/{child_folder}')
+                logging.info("recieved from WAVE operation >>  ", recvData)
+
+            """
+                rf 및 음장 끝
+            """
 
             data_json = dict()
             data_json["gt_brightness"] = self.config["light_config"]["gt_brightness"]
-            # data_json["gt_bboxes"] = gt_bboxes
+            data_json["gt_bboxes"] = gt_bboxes
             data_json["turtlebot_position"] = turtlebot_position
             data_json_path = os.path.join(this_data_folder, "gt_data.json")
 
@@ -321,6 +366,8 @@ class Collector():
             print("T{}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 whole_time / time_count))
+
+
 
     def initialize(self):
         dir = os.path.join(self.data_folder, "initialization")
@@ -344,7 +391,7 @@ class Collector():
         task.ao_channels.add_ao_voltage_chan("Dev1/ao1")
 
         # move turtlebot to the outside of RoI
-        print("Move turtlebot outside")
+        logging.info("Move turtlebot outside")
         x, y, a = 2.5, 0.0, 0.0
         # turtlebot.command(x, y, a)
 
@@ -353,7 +400,7 @@ class Collector():
         self.avg_images = list()
         while not done:
             done, position = galvanometer.step()
-            print("Take average images X{:2d}/{:2d} Y{:2d}/{:2d}".format(
+            logging.info("Take average images X{:2d}/{:2d} Y{:2d}/{:2d}".format(
                 position[0] + 1, self.config["galvanometer_config"]["num_grid"],
                 position[1] + 1, self.config["galvanometer_config"]["num_grid"]
             ))
@@ -369,7 +416,7 @@ class Collector():
                 cv2.imwrite(image_path, image)
 
         # move turtlebot to the outside of RoI
-        print("Move turtlebot to the initial point")
+        logging.info("Move turtlebot to the initial point")
         x, y, a = 0.6, -0.6, 0.0
         # turtlebot.command(x, y, a)
         self.laser.turn_off()

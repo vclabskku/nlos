@@ -45,7 +45,7 @@ class Laser():
 if __name__ == "__main__":
     config = dict()
     config["laser_config"] = dict()
-    config["laser_config"]["cport_nr"] = 2
+    config["laser_config"]["cport_nr"] = 0
     config["laser_config"]["bdrate"] = 9600
     config["laser_config"]["laser1"] = 100
     config["laser_config"]["laser2"] = 76

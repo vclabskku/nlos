@@ -85,8 +85,8 @@ config["roscore"]["2"]["terminal_2"]["operation"] = "set ChocolateyInstall=c://o
 config["cmos_config"] = dict()
 config["cmos_config"]["cam_ids"] = ["DEV_000F310382EB", "DEV_000F310382ED"]
 config["cmos_config"]["iterations"] = 3
-# config["cmos_config"]["exposure_time"] = 5.0e+5 # micro seconds
-config["cmos_config"]["exposure_time"] = 5.0e+3 # micro seconds
+config["cmos_config"]["exposure_time"] = 5.0e+5 # micro seconds
+# config["cmos_config"]["exposure_time"] = 5.0e+3 # micro seconds
 config["cmos_config"]["timeout_time"] = int(5.0e+3) # milli seconds
 
 config["depth_config"] = dict()
@@ -107,7 +107,7 @@ config["laser_config"]["laser3"] = 85
 # config["laser_config"]["laser3"] = 5
 
 config["galvanometer_config"] = dict()
-config["galvanometer_config"]["num_grid"] = 2
+config["galvanometer_config"]["num_grid"] = 5
 config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 
 # config for light

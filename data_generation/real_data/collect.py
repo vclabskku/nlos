@@ -342,12 +342,12 @@ class Collector():
             if self.config["sensor_config"]["use_rf"]:
                 logging.info("sending RF command")
                 recvData = self.server.send_command(f'rf-{parent_folder}/{child_folder}')
-                logging.info("recieved from RF operation >> ", recvData)
+                logging.info("recieved from RF operation >> {}".format(recvData))
 
             if self.config["sensor_config"]["use_sound"]:
                 logging.info("sending WAVE command")
                 recvData = self.server.send_command(f'wave-{parent_folder}/{child_folder}')
-                logging.info("recieved from WAVE operation >>  ", recvData)
+                logging.info("recieved from WAVE operation >>  {}".format(recvData))
 
             """
                 rf 및 음장 끝

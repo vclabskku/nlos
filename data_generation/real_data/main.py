@@ -152,7 +152,7 @@ config["detector_config"]["check_point"] = "output/novel/model_0004999.pth"
 '''
 
 server = dict()
-server['ip'] = "192.168.50.192"
+server['ip'] = "192.168.50.174"
 server['port'] = 8888
 
 config['server'] = server

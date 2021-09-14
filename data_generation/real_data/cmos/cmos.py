@@ -7,6 +7,106 @@ import numpy as np
 
 # from typing import Optional
 
+# class CMOS():
+#
+#     def __init__(self, config=None):
+#
+#         self.config = config
+#         self.PIXEL_FORMATS_CONVERSIONS = {
+#             'BayerRG8': cv2.COLOR_BAYER_RG2RGB,
+#             'PixelFormat.BayerRG8': cv2.COLOR_BAYER_RG2RGB
+#         }
+#
+#         #### Camera ID #####
+#         # DEV_000F310382ED (Reflection Low) #
+#         # DEV_000F310382EC (GT)#
+#         # DEV_000F310382EB (Reflection High #
+#         ####################
+#         self.camera_ids = self.config["cam_ids"]
+#         self.iterations = self.config["iterations"]
+#         self.exposure_time = self.config["exposure_time"]
+#         self.timeout_time = self.config["timeout_time"]
+#
+#         # TODO: we have to initialize cams only ones here!
+#         with Vimba.get_instance() as vimba:
+#             for cam_id in self.camera_ids:
+#                 try:
+#                     with vimba.get_camera_by_id(cam_id) as cam:
+#                         self.setup_camera(cam)
+#                 except VimbaCameraError:
+#                     print('Failed to access Camera {}. Abort.'.format(cam_id))
+#
+#     def setup_camera(self, cam: Camera):
+#         # with cam:
+#         # Try to adjust GeV packet size. This Feature is only available for GigE - Cameras.
+#         try:
+#             cam.GVSPAdjustPacketSize.run()
+#
+#             while not cam.GVSPAdjustPacketSize.is_done():
+#                 pass
+#         except (AttributeError, VimbaFeatureError):
+#             print("GVSP Adjust Packet Size Error!")
+#             pass
+#
+#         exposure_time = cam.ExposureTimeAbs
+#         # time = exposure_time.get()
+#         # inc = exposure_time.get_increment()
+#         # exposure_time.set(time + inc)
+#         exposure_time.set(self.exposure_time)
+#
+#     def get_reflection_images(self):
+#         ## cam_id array with 2 strings
+#         frame_list = []
+#
+#         with Vimba.get_instance() as vimba:
+#             # cams = vimba.get_all_cameras()
+#             # count = len(cams)
+#             #
+#             # for i in range(count):
+#             for cam_id in self.camera_ids:
+#                 start_time = time.time()
+#                 with vimba.get_camera_by_id(cam_id) as cam:
+#                     self.setup_camera(cam)
+#
+#                     # for feature in cam.get_all_features():
+#                     #     try:
+#                     #         value = feature.get()
+#                     #
+#                     #     except (AttributeError, VimbaFeatureError):
+#                     #         value = None
+#                     #
+#                     #     if "exposure" in feature.get_name().lower():
+#                     #         print('/// Feature name   : {}'.format(feature.get_name()))
+#                     #         print('/// Display name   : {}'.format(feature.get_display_name()))
+#                     #         print('/// Tooltip        : {}'.format(feature.get_tooltip()))
+#                     #         print('/// Description    : {}'.format(feature.get_description()))
+#                     #         print('/// SFNC Namespace : {}'.format(feature.get_sfnc_namespace()))
+#                     #         print('/// Unit           : {}'.format(feature.get_unit()))
+#                     #         print('/// Value          : {}\n'.format(str(value)))
+#                     while True:
+#                         frame = cam.get_frame(self.timeout_time)
+#                         if frame.get_status() == FrameStatus.Complete:
+#                             frame.convert_pixel_format(PixelFormat.Bgr8)
+#                             # frame.convert_pixel_format(PixelFormat.BayerBG16)
+#                             frame = frame.as_numpy_ndarray()
+#                             break
+#                     # frame = frame[:530]
+#                     frame_list.append(frame)
+#                     end_time = time.time() - start_time
+#                     print("taking a picture ... {:.5f} secs".format(end_time))
+#
+#         # for cam in self.cams:
+#         #     while True:
+#         #         frame = cam.get_frame(self.timeout_time)
+#         #         if frame.get_status() == FrameStatus.Complete:
+#         #             frame.convert_pixel_format(PixelFormat.Bgr8)
+#         #             # frame.convert_pixel_format(PixelFormat.BayerBG16)
+#         #             frame = frame.as_numpy_ndarray()
+#         #             break
+#         #     # frame = frame[:530]
+#         #     frame_list.append(frame)
+#
+#         return frame_list
 
 class CMOS():
 
@@ -29,13 +129,20 @@ class CMOS():
         self.timeout_time = self.config["timeout_time"]
 
         # TODO: we have to initialize cams only ones here!
-        with Vimba.get_instance() as vimba:
-            for cam_id in self.camera_ids:
-                try:
-                    with vimba.get_camera_by_id(cam_id) as cam:
-                        self.setup_camera(cam)
-                except VimbaCameraError:
-                    print('Failed to access Camera {}. Abort.'.format(cam_id))
+        self.vimba = Vimba.get_instance()
+        self.vimba.__enter__()
+        self.cam_list = []
+        for cam_id in self.camera_ids:
+            self.cam = self.vimba.get_camera_by_id(cam_id)
+            self.cam.__enter__()
+            self.setup_camera(self.cam)
+            self.cam_list.append(self.cam)
+
+    def __del__(self):
+        for i in range(len(self.camera_ids)):
+            pass
+        self.cam_list[i].__exit__(None, None, None)
+        self.vimba.__exit__(None, None, None)
 
     def setup_camera(self, cam: Camera):
         # with cam:
@@ -56,56 +163,19 @@ class CMOS():
         exposure_time.set(self.exposure_time)
 
     def get_reflection_images(self):
-        ## cam_id array with 2 strings
         frame_list = []
 
-        with Vimba.get_instance() as vimba:
-            # cams = vimba.get_all_cameras()
-            # count = len(cams)
-            #
-            # for i in range(count):
-            for cam_id in self.camera_ids:
-                start_time = time.time()
-                with vimba.get_camera_by_id(cam_id) as cam:
-                    self.setup_camera(cam)
-
-                    # for feature in cam.get_all_features():
-                    #     try:
-                    #         value = feature.get()
-                    #
-                    #     except (AttributeError, VimbaFeatureError):
-                    #         value = None
-                    #
-                    #     if "exposure" in feature.get_name().lower():
-                    #         print('/// Feature name   : {}'.format(feature.get_name()))
-                    #         print('/// Display name   : {}'.format(feature.get_display_name()))
-                    #         print('/// Tooltip        : {}'.format(feature.get_tooltip()))
-                    #         print('/// Description    : {}'.format(feature.get_description()))
-                    #         print('/// SFNC Namespace : {}'.format(feature.get_sfnc_namespace()))
-                    #         print('/// Unit           : {}'.format(feature.get_unit()))
-                    #         print('/// Value          : {}\n'.format(str(value)))
-                    while True:
-                        frame = cam.get_frame(self.timeout_time)
-                        if frame.get_status() == FrameStatus.Complete:
-                            frame.convert_pixel_format(PixelFormat.Bgr8)
-                            # frame.convert_pixel_format(PixelFormat.BayerBG16)
-                            frame = frame.as_numpy_ndarray()
-                            break
-                    # frame = frame[:530]
-                    frame_list.append(frame)
-                    end_time = time.time() - start_time
-                    print("taking a picture ... {:.5f} secs".format(end_time))
-
-        # for cam in self.cams:
-        #     while True:
-        #         frame = cam.get_frame(self.timeout_time)
-        #         if frame.get_status() == FrameStatus.Complete:
-        #             frame.convert_pixel_format(PixelFormat.Bgr8)
-        #             # frame.convert_pixel_format(PixelFormat.BayerBG16)
-        #             frame = frame.as_numpy_ndarray()
-        #             break
-        #     # frame = frame[:530]
-        #     frame_list.append(frame)
+        for i in range(len(self.camera_ids)):
+            start_time = time.time()
+            while True:
+                frame = self.cam_list[i].get_frame(self.timeout_time)
+                if frame.get_status() == FrameStatus.Complete:
+                    frame.convert_pixel_format(PixelFormat.Bgr8)
+                    frame = frame.as_numpy_ndarray()
+                    break
+            frame_list.append(frame)
+            end_time = time.time() - start_time
+            # print("taking a picture ... {:.5f} secs".format(end_time))
 
         return frame_list
 

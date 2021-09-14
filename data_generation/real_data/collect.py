@@ -44,7 +44,7 @@ class Collector():
             os.mkdir(self.data_folder)
         except OSError:
             pass
-        self.server = Client(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
+        self.client = Client(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
 
         self.set_logger()
 
@@ -341,12 +341,12 @@ class Collector():
 
             if self.config["sensor_config"]["use_rf"]:
                 logging.info("sending RF command")
-                recvData = self.server.send_command(f'rf-{parent_folder}/{child_folder}')
+                recvData = self.client.send_command(f'rf-{parent_folder}/{child_folder}')
                 logging.info("recieved from RF operation >> {}".format(recvData))
 
             if self.config["sensor_config"]["use_sound"]:
                 logging.info("sending WAVE command")
-                recvData = self.server.send_command(f'wave-{parent_folder}/{child_folder}')
+                recvData = self.client.send_command(f'wave-{parent_folder}/{child_folder}')
                 logging.info("recieved from WAVE operation >>  {}".format(recvData))
 
             """

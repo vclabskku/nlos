@@ -18,7 +18,7 @@ class Turtlebot():
         self.current_as = [0.0] * self.num_turtlebots
 
         self.max_iterations = 10
-        self.max_time = 30.0
+        self.max_time = 120.0
         self.min_spatial_movement = 0.1
         self.max_spatial_movement = 0.1
         self.min_angular_movement = 30.0

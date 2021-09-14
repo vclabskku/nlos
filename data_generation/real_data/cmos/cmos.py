@@ -175,7 +175,7 @@ class CMOS():
                     break
             frame_list.append(frame)
             end_time = time.time() - start_time
-            print("taking a picture ... {:.5f} secs".format(end_time))
+            # print("taking a picture ... {:.5f} secs".format(end_time))
 
         return frame_list
 

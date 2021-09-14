@@ -18,6 +18,7 @@ class Turtlebot():
         self.current_as = [0.0] * self.num_turtlebots
 
         self.max_iterations = 10
+        self.max_time = 30.0
         self.min_spatial_movement = 0.1
         self.max_spatial_movement = 0.1
         self.min_angular_movement = 30.0
@@ -234,10 +235,17 @@ class Turtlebot():
                 "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals && " \
                 "set ROS_MASTER_URI=http://{}:{} && " \
                 "simple_navigation_goals.exe {} {} {}".format(self.config["master_ip"], port, x, y, a)
-            ok = bool(os.system(cmd))
-            # ok = True
-            # ok = subprocess.check_output(cmd.split())
-            # ok = bool(ok.decode().rstrip())
+
+            # ok = bool(os.system(cmd))
+
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+            ok = True
+            try:
+                p.wait(self.max_time)
+            except subprocess.TimeoutExpired:
+                p.kill()
+                ok = False
+
             count += 1
             if ok:
                 break

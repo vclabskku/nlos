@@ -136,4 +136,39 @@ if __name__ == '__main__':
     port = 8888
     server = Server(host, port, radar, wave)
 
-    server.listen()
+    while True:
+        try:
+            connectionSock, client_addr = server.sock.accept()
+            print(f"{str(client_addr)} is connected")
+
+            while True:
+                try:
+                    recvData = connectionSock.recv(1024).decode('utf-8')
+                    logging.info('recieved : {}'.format(recvData))
+
+                    command, file_path = recvData.split('-')
+                    # file_path = "none"
+                except:
+                    logging.error("host connection end")
+                    break
+
+                try:
+                    if command == 'rf':
+                        server.execute(0, file_path)
+                        send_message = 'rf_end'
+                    elif command == 'wave':
+                        server.execute(1, file_path)
+                        send_message = 'wave_end'
+                    # elif command == 'folder':
+                    #     self.setLogger(file_path)
+                    #     send_message = 'set folder'
+                except:
+                    logging.error("Error has been occurred")
+                    send_message = 'error on {}'.format(command)
+                    logging.error("Unexpected error:", sys.exc_info()[0])
+                    break
+
+                connectionSock.send(send_message.encode('utf-8'))
+        except KeyboardInterrupt:
+            server.sock.close()
+            break

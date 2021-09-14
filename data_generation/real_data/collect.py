@@ -5,7 +5,7 @@ from data_generation.real_data.depth.depth import Depth
 from data_generation.real_data.detector.detector import Detector
 from data_generation.real_data.laser.laser import Laser
 from data_generation.real_data.galvanometer.galvanometer import Galvanometer
-from data_generation.real_data.server import ServerCommand
+from data_generation.real_data.client.client import Client
 
 #from data_generation.real_data.sound.Echo import Echo
 #from data_generation.real_data.sound.Arduino import Arduino
@@ -44,7 +44,7 @@ class Collector():
             os.mkdir(self.data_folder)
         except OSError:
             pass
-        self.server = ServerCommand(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
+        self.server = Client(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
 
         self.set_logger()
 

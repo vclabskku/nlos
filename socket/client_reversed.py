@@ -3,7 +3,7 @@
 ### Socket programming Client code
 from socket import *
 
-class client():
+class Client():
     def __init__(self, port, host, recv_size=1024):
         self.port = port
         self.host = host

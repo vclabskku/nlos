@@ -29,10 +29,6 @@ class Server:
         self.sock.listen(10)
         print("server start")
 
-        self.connectionSock, self.client_addr = self.sock.accept()
-
-        print(f"{str(self.client_addr)} is connected")
-
     def __del__(self):
         self.sock.close()
 
@@ -54,7 +50,7 @@ class Server:
         while True:
             try:
                 recvData = client_socket.recv(1024).decode('utf-8')
-                logging.info('recieved :', recvData)
+                logging.info('recieved : {}'.format(recvData))
 
                 command, file_path = recvData.split('-')
                 # file_path = "none"

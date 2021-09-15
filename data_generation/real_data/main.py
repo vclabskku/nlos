@@ -3,14 +3,13 @@ from data_generation.real_data.collect import Collector
 config = dict()
 
 config["data_config"] = dict()
-config["data_config"]["dst_folder"] = "d:\\test_01" # human_02
 
 # 0.6, -0.6, 0.0
 config["turtlebot_config"] = dict()
 ################################################################################
 # Important Parameters
 ################################################################################
-# string with 0! (You have to subtract 1 to the target number!)
+config["data_config"]["dst_folder"] = "d:\\test_01"
 config["turtlebot_config"]["initial_indices"] = [0, 0]
 config["sensor_config"] = dict()
 config["sensor_config"]["use_laser"] = True

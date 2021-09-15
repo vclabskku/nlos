@@ -9,13 +9,13 @@ config["turtlebot_config"] = dict()
 ################################################################################
 # Important Parameters
 ################################################################################
-config["data_config"]["dst_folder"] = "d:\\test_01"
-config["turtlebot_config"]["initial_indices"] = [0, 0]
-# config["turtlebot_config"]["initial_indices"] = [0]
+config["data_config"]["dst_folder"] = "d:\\sound_test_01"
+# config["turtlebot_config"]["initial_indices"] = [0, 0]
+config["turtlebot_config"]["initial_indices"] = [0]
 config["sensor_config"] = dict()
 config["sensor_config"]["use_laser"] = False
 config["sensor_config"]["use_rf"] = False
-config["sensor_config"]["use_sound"] = False
+config["sensor_config"]["use_sound"] = True
 ################################################################################
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0

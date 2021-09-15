@@ -244,14 +244,20 @@ class Turtlebot():
             # try:
             #     p.wait(self.max_time)
             # except subprocess.TimeoutExpired:
-            #     # p.kill()
-            #     self.kill(p.pid)
+            #     p.kill()
+            #     # self.kill(p.pid)
             #     time.sleep(1.0)
             #     cmd = \
             #         "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
             #         "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
             #         "set ROS_MASTER_URI=http://{}:{} && " \
-            #         "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.4, 0.0, 0.0)
+            #         "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.0, 0.0, 180.0)
+            #     os.system(cmd)
+            #     cmd = \
+            #         "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
+            #         "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
+            #         "set ROS_MASTER_URI=http://{}:{} && " \
+            #         "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.0, 0.0, 180.0)
             #     os.system(cmd)
             #     ok = False
 

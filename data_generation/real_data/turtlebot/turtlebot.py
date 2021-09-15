@@ -3,6 +3,7 @@ import subprocess
 import math
 import os
 import time
+import psutil
 
 
 class Turtlebot():
@@ -236,14 +237,22 @@ class Turtlebot():
                 "set ROS_MASTER_URI=http://{}:{} && " \
                 "simple_navigation_goals.exe {} {} {}".format(self.config["master_ip"], port, x, y, a)
 
-            ok = bool(os.system(cmd))
+            # ok = bool(os.system(cmd))
 
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             ok = True
             try:
                 p.wait(self.max_time)
             except subprocess.TimeoutExpired:
-                p.kill()
+                # p.kill()
+                self.kill(p.pid)
+                time.sleep(1.0)
+                cmd = \
+                    "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
+                    "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
+                    "set ROS_MASTER_URI=http://{}:{} && " \
+                    "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.5, 0.0, 0.0)
+                os.system(cmd)
                 ok = False
 
             count += 1
@@ -258,6 +267,12 @@ class Turtlebot():
                 time.sleep(1)
                 self.command(0, 0, 0)
                 time.sleep(1)
+
+    def kill(self, proc_pid):
+        process = psutil.Process(proc_pid)
+        for proc in process.children(recursive=True):
+            proc.kill()
+        process.kill()
 
 
 if __name__ == "__main__":

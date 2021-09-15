@@ -4,6 +4,7 @@
 from socket import *
 
 class Client():
+
     def __init__(self, host, port, recv_size=1024, data_folder="./data"):
         self.port = port
         self.host = host

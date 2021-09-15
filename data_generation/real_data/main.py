@@ -11,10 +11,11 @@ config["turtlebot_config"] = dict()
 ################################################################################
 config["data_config"]["dst_folder"] = "d:\\test_01"
 config["turtlebot_config"]["initial_indices"] = [0, 0]
+# config["turtlebot_config"]["initial_indices"] = [0]
 config["sensor_config"] = dict()
-config["sensor_config"]["use_laser"] = True
-config["sensor_config"]["use_rf"] = True
-config["sensor_config"]["use_sound"] = True
+config["sensor_config"]["use_laser"] = False
+config["sensor_config"]["use_rf"] = False
+config["sensor_config"]["use_sound"] = False
 ################################################################################
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0
@@ -23,8 +24,8 @@ config["sensor_config"]["use_sound"] = True
 # config["turtlebot_config"]["area_range"] = [[1.0, -1.0], [2.0, -2.0]]
 config["turtlebot_config"]["area_range"] = [[0.80, -0.80], [2.80, -2.40]]
 config["turtlebot_config"]["angle_range"] = [0.0, 180.0]
-config["turtlebot_config"]["spatial_step"] = 0.1
-config["turtlebot_config"]["angle_step"] = 20.0
+config["turtlebot_config"]["spatial_step"] = 0.1 # default 0.1
+config["turtlebot_config"]["angle_step"] = 20.0 # max 180, default 20.0
 config["turtlebot_config"]["min_distance"] = 0.35
 config["turtlebot_config"]["ports"] = ["11311", "11312"]
 config["turtlebot_config"]["master_ip"] = "192.168.50.192"

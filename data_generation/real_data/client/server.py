@@ -144,7 +144,7 @@ if __name__ == '__main__':
             while True:
                 try:
                     recvData = connectionSock.recv(1024).decode('utf-8')
-                    logging.info('recieved : {}'.format(recvData))
+                    # logging.info('recieved : {}'.format(recvData))
 
                     command, file_path = recvData.split('-')
                     # file_path = "none"

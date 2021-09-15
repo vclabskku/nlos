@@ -251,7 +251,7 @@ class Turtlebot():
                     "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
                     "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
                     "set ROS_MASTER_URI=http://{}:{} && " \
-                    "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.5, 0.0, 0.0)
+                    "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.4, 0.0, 0.0)
                 os.system(cmd)
                 ok = False
 

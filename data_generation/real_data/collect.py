@@ -125,14 +125,17 @@ class Collector():
 
             roscore.start()
             while (True):
+                time.sleep(0.2)
                 if manager[0] == True:
                     break
             turtlebot.start()
             while (True):
+                time.sleep(0.2)
                 if manager[1] == True:
                     break
             map.start()
             while (True):
+                time.sleep(0.2)
                 if manager[2] == True:
                     break
 

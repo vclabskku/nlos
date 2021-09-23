@@ -361,7 +361,7 @@ class Collector():
 
             data_json = dict()
             data_json["gt_brightness"] = self.config["light_config"]["gt_brightness"]
-            data_json["gt_bboxes"] = gt_bboxes
+            # data_json["gt_bboxes"] = gt_bboxes
             data_json["turtlebot_position"] = turtlebot_position
             data_json_path = os.path.join(this_data_folder, "gt_data.json")
 

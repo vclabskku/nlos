@@ -237,29 +237,17 @@ class Turtlebot():
                 "set ROS_MASTER_URI=http://{}:{} && " \
                 "simple_navigation_goals.exe {} {} {}".format(self.config["master_ip"], port, x, y, a)
 
-            ok = bool(os.system(cmd))
+            # ok = bool(os.system(cmd))
 
-            # p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-            # ok = True
-            # try:
-            #     p.wait(self.max_time)
-            # except subprocess.TimeoutExpired:
-            #     p.kill()
-            #     # self.kill(p.pid)
-            #     time.sleep(1.0)
-            #     cmd = \
-            #         "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
-            #         "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
-            #         "set ROS_MASTER_URI=http://{}:{} && " \
-            #         "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.0, 0.0, 180.0)
-            #     os.system(cmd)
-            #     cmd = \
-            #         "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
-            #         "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
-            #         "set ROS_MASTER_URI=http://{}:{} && " \
-            #         "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port, 0.0, 0.0, 180.0)
-            #     os.system(cmd)
-            #     ok = False
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+            try:
+                p.wait(self.max_time)
+                ok = p.returncode
+            except subprocess.TimeoutExpired:
+                # p.kill()
+                self.kill(p.pid)
+                self.escape(port=port)
+                ok = False
 
             count += 1
             if ok:
@@ -279,6 +267,21 @@ class Turtlebot():
         for proc in process.children(recursive=True):
             proc.kill()
         process.kill()
+
+    def escape(self, port="11311"):
+        for _ in range(2):
+            cmd = \
+                "cd C:\\ws\\turtlebot3\\devel && setup.bat && " \
+                "cd C:\\ws\\turtlebot3\\devel\\lib\\simple_navigation_goals_02 && " \
+                "set ROS_MASTER_URI=http://{}:{} && " \
+                "simple_navigation_goals_02.exe {} {} {}".format(self.config["master_ip"], port,
+                                                                 0.0, 0.0, 180.0)
+            escape_p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+            try:
+                escape_p.wait(self.max_time)
+            except subprocess.TimeoutExpired:
+                self.kill(escape_p.pid)
+
 
 
 if __name__ == "__main__":

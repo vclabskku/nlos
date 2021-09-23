@@ -44,7 +44,9 @@ class Collector():
             os.mkdir(self.data_folder)
         except OSError:
             pass
-        self.client = Client(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
+
+        if self.config["sensor_config"]["use_rf"] or self.config["sensor_config"]["use_sound"]:
+            self.client = Client(self.config['server']['ip'], self.config['server']['port'], self.data_folder)
 
         self.set_logger()
 
@@ -123,14 +125,17 @@ class Collector():
 
             roscore.start()
             while (True):
+                time.sleep(0.2)
                 if manager[0] == True:
                     break
             turtlebot.start()
             while (True):
+                time.sleep(0.2)
                 if manager[1] == True:
                     break
             map.start()
             while (True):
+                time.sleep(0.2)
                 if manager[2] == True:
                     break
 
@@ -175,10 +180,11 @@ class Collector():
             ###
             ### Set light for gt
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                1, "Light"))
-            self.light.light_for_gt()
+            if self.config["sensor_config"]["use_laser"]:
+                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
+                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    1, "Light"))
+                self.light.light_for_gt()
 
             ###
             ### Move the object to a point
@@ -215,18 +221,19 @@ class Collector():
             ###
             ### Set light for laser
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                6, "Light"))
-            self.light.light_for_laser()
+            if self.config["sensor_config"]["use_laser"]:
+                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
+                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    6, "Light"))
+                self.light.light_for_laser()
 
             ###
             ### Turn on laser
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
+            if self.config["sensor_config"]["use_laser"]:
+                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 7, "Laser"))
-            if self.config["sensor_config"]["use_laser"]:
                 self.laser.turn_on()
 
             ###
@@ -275,11 +282,10 @@ class Collector():
             ###
             ### Turn off laser
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                10, "Laser"))
-            logging.info("out")
             if self.config["sensor_config"]["use_laser"]:
+                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
+                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+                    10, "Laser"))
                 self.laser.turn_off()
 
             ###
@@ -366,8 +372,6 @@ class Collector():
             print("T{}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
                 self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
                 whole_time / time_count))
-
-
 
     def initialize(self):
         dir = os.path.join(self.data_folder, "initialization")

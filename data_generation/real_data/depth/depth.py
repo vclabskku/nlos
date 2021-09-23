@@ -59,6 +59,8 @@ class Depth():
         # Streaming loop
         try:
             # Get frameset of color and depthprint('4')
+            for x in range(5):
+                self.pipeline.wait_for_frames()
 
             frames = self.pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
@@ -71,6 +73,7 @@ class Depth():
             if not depth_frame:
                 print("ERROR : NO FRAME")
                 return
+
             colorizer = rs.colorizer()
             depth_image = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 

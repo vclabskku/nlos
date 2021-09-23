@@ -10,12 +10,11 @@ config["turtlebot_config"] = dict()
 # Important Parameters
 ################################################################################
 config["data_config"]["dst_folder"] = "d:\\moving_test_01"
-config["turtlebot_config"]["initial_indices"] = [0, 0]
-# config["turtlebot_config"]["initial_indices"] = [280]
+config["turtlebot_config"]["initial_indices"] = [0, 0] # [i, j] or [i]
 config["sensor_config"] = dict()
-config["sensor_config"]["use_laser"] = False
-config["sensor_config"]["use_rf"] = False
-config["sensor_config"]["use_sound"] = False
+config["sensor_config"]["use_laser"] = True
+config["sensor_config"]["use_rf"] = True
+config["sensor_config"]["use_sound"] = True
 ################################################################################
 # X: 0.6, -0.6
 # leftbottom: 0.6, -1.0, 0.0

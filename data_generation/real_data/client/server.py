@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
     host = "192.168.50.174"
     port = 8888
-    server = Server(host, port, radar, wave)
+    server = Server(host, port, None, wave)
 
     while True:
         try:

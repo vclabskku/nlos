@@ -213,10 +213,10 @@ class Collector():
             ###
             ### Get 2D object detection bboxes
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                5, "Detector"))
-            gt_bboxes = self.detector.detect(gt_rgb_image)
+            # logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT detection bboxes".format(
+            #     self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+            #     5, "Detector"))
+            # gt_bboxes = self.detector.detect(gt_rgb_image)
 
             ###
             ### Set light for laser

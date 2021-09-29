@@ -59,8 +59,8 @@ class Depth():
         # Streaming loop
         try:
             # Get frameset of color and depthprint('4')
-            for x in range(5):
-                self.pipeline.wait_for_frames()
+            # for x in range(5):
+            #     self.pipeline.wait_for_frames()
 
             frames = self.pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
@@ -89,8 +89,8 @@ class Depth():
 
             ### DEPTH ARRAY TO IMAGE ###
 
-            filename = "C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth"
-            cv2.imwrite('{}/DEPTH.png'.format(filename), depth_image)
+            # filename = "C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth"
+            # cv2.imwrite('{}/DEPTH.png'.format(filename), depth_image)
             # print("success")
             # cv2.imwrite('{}/DEPTH.png'p.format(filename), images)
             # cv2.imwrite('{}/DEPTH.png'.format(filename), depth_colormap)
@@ -138,8 +138,8 @@ class Depth():
             color_image = np.asanyarray(color_frame.get_data())
             # print(color_image)
 
-            filename = "C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth"
-            cv2.imwrite('{}/rgb_image.png'.format(filename), color_image)
+            # filename = "C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth"
+            # cv2.imwrite('{}/rgb_image.png'.format(filename), color_image)
 
             return color_image
         except:

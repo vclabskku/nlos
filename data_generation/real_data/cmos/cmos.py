@@ -168,7 +168,11 @@ class CMOS():
         for i in range(len(self.camera_ids)):
             start_time = time.time()
             while True:
-                frame = self.cam_list[i].get_frame(self.timeout_time)
+                try:
+                    frame = self.cam_list[i].get_frame(self.timeout_time)
+                except:
+                    continue
+
                 if frame.get_status() == FrameStatus.Complete:
                     frame.convert_pixel_format(PixelFormat.Bgr8)
                     frame = frame.as_numpy_ndarray()

@@ -34,4 +34,5 @@ class client():
         elif flag == 1: ### wave execute
             print("execute wave")
 
-cli = client(8081, '192.168.50.174')
+#cli = client(8081, '192.168.50.174')
+cli = client(8888, '192.168.50.36')

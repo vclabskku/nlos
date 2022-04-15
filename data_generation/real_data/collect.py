@@ -40,6 +40,7 @@ class Collector():
         dst_folder = self.config["data_config"]["dst_folder"]
         # current_datetime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
         self.data_folder = os.path.join(dst_folder)
+        self.log_folder = self.config["data_config"]["log_folder"]
         try:
             os.mkdir(self.data_folder)
         except OSError:
@@ -58,11 +59,11 @@ class Collector():
         stream_handler.setLevel(logging.DEBUG)
         logger.addHandler(stream_handler)
 
-        file_handler = logging.FileHandler(self.data_folder + f'/main_computer_{time.strftime("%m%d-%H%M")}.log')
+        file_handler = logging.FileHandler(self.log_folder + f'/main_computer_{time.strftime("%m%d-%H%M")}.log')
         file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
         file_handler.setLevel(logging.DEBUG)
         logger.addHandler(file_handler)
-        logging.info(f"LOG DIR SET :{self.data_folder}")
+        logging.info(f"LOG DIR SET :{self.log_folder}")
 
     def execute(self, command):
         process = Popen(command, stdout=PIPE, shell=True)
@@ -147,7 +148,6 @@ class Collector():
     def collect(self):
         whole_time = 0.0
         time_count = 0
-        data_count = self.config["turtlebot_config"]["initial_indices"]
         turtlebot_done = False
 
         # avg_image_paths = [os.path.join(self.data_folder, "initialization",
@@ -177,38 +177,40 @@ class Collector():
         self.light.light_for_gt()
         while not turtlebot_done:
             start_time = time.time()
+            task_index = 1
             ###
             ### Set light for gt
             ###
             if self.config["sensor_config"]["use_laser"]:
-                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
-                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    1, "Light"))
+                turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                       for l_i, t_i in enumerate(self.turtlebot.indices)])
+                logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for ground truth".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                    task_index, "Light"))
                 self.light.light_for_gt()
+                task_index += 1
 
             ###
             ### Move the object to a point
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Move".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                2, "Turtlebot"))
+            turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                   for l_i, t_i in enumerate(self.turtlebot.indices)])
+            logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Move".format(
+                turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                task_index, "Turtlebot"))
             turtlebot_done, turtlebot_position = self.turtlebot.step()
+            task_index += 1
 
             ###
-            ### Get gt rgb image
+            ### Get gt rgb & depth images
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                3, "Depth"))
-            gt_rgb_image = self.depth.get_rgb()
-
-            ###
-            ### Get gt depth image
-            ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Get GT depth image".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                4, "Depth"))
-            gt_depth_image = self.depth.get_depth_image()
+            turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                   for l_i, t_i in enumerate(self.turtlebot.indices)])
+            logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Get GT rgb image".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                task_index, "Depth"))
+            gt_rgb_image, gt_depth_gray_image, gt_depth_color_image = self.depth.get_aligned_images()
+            task_index += 1
 
             ###
             ### Get 2D object detection bboxes
@@ -222,19 +224,25 @@ class Collector():
             ### Set light for laser
             ###
             if self.config["sensor_config"]["use_laser"]:
-                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
-                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    6, "Light"))
+                turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                       for l_i, t_i in enumerate(self.turtlebot.indices)])
+                logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Set light for laser".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                    task_index, "Light"))
                 self.light.light_for_laser()
+                task_index += 1
 
             ###
             ### Turn on laser
             ###
             if self.config["sensor_config"]["use_laser"]:
-                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                7, "Laser"))
+                turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                       for l_i, t_i in enumerate(self.turtlebot.indices)])
+                logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn on the laser".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                task_index, "Laser"))
                 self.laser.turn_on()
+                task_index += 1
 
             ###
             ### Step on galvanometer for grid scanning
@@ -242,16 +250,18 @@ class Collector():
             if self.config["sensor_config"]["use_laser"]:
                 galvanometer_done = False
                 reflection_items = list()
+                turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                       for l_i, t_i in enumerate(self.turtlebot.indices)])
                 while not galvanometer_done:
                     galvanometer_done, galvanometer_position = self.galvanometer.step()
-                    print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
-                        self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                        8, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
+                    print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Move mirrors".format(
+                        turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                        task_index, "Galvanometer", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
 
                     # get reflection image
-                    print("T{}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
-                        self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                        9, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
+                    print("T{:4d}/{:4d}|S{:2d}:{:12s}|G{:2d}/{:2d}:Get reflection rgb images".format(
+                        turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                        task_index, "CMOS", self.galvanometer.count, self.galvanometer.num_grid ** 2, ))
 
                     reflection_images = self.cmos.get_reflection_images()
 
@@ -278,34 +288,44 @@ class Collector():
                     reflection_items.append([galvanometer_position, reflection_images,
                                              # diff_images_01, diff_images_02, diff_images_03
                                              ])
+                task_index += 1
 
             ###
             ### Turn off laser
             ###
             if self.config["sensor_config"]["use_laser"]:
-                logging.info("T{}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
-                    self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                    10, "Laser"))
+                turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                       for l_i, t_i in enumerate(self.turtlebot.indices)])
+                logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Turn off the laser".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                    task_index, "Laser"))
                 self.laser.turn_off()
+                task_index += 1
 
             ###
             ### save data
             ###
-            logging.info("T{}/{:4d}|S{:2d}:{:12s}|Save the data".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
-                11, "Data"))
-            indices_str = "_".join(["{:08d}".format(index) for index in self.turtlebot.indices])
-            this_data_folder = os.path.join(self.data_folder, "D{}".format(indices_str))
+            turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                   for l_i, t_i in enumerate(self.turtlebot.indices)])
+            logging.info("T{:4d}/{:4d}|S{:2d}:{:12s}|Save the data".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
+                task_index, "Data"))
+            # indices_str = "_".join(["{:08d}".format(index) for index in self.turtlebot.indices])
+            this_data_folder = os.path.join(self.data_folder, "D{:08d}".format(turtlebot_index))
             try:
                 os.mkdir(this_data_folder)
             except OSError:
                 pass
+            task_index += 1
 
             gt_rgb_image_path = os.path.join(this_data_folder, "gt_rgb_image.png")
             cv2.imwrite(gt_rgb_image_path, gt_rgb_image)
 
-            gt_depth_image_path = os.path.join(this_data_folder, "gt_depth_image.png")
-            cv2.imwrite(gt_depth_image_path, gt_depth_image)
+            gt_depth_gray_image_path = os.path.join(this_data_folder, "gt_depth_gray_image.png")
+            cv2.imwrite(gt_depth_gray_image_path, gt_depth_gray_image)
+
+            gt_depth_color_image_path = os.path.join(this_data_folder, "gt_depth_color_image.png")
+            cv2.imwrite(gt_depth_color_image_path, gt_depth_color_image)
 
             if self.config["sensor_config"]["use_laser"]:
                 for galvanometer_index, items in enumerate(reflection_items):
@@ -369,8 +389,10 @@ class Collector():
                 json.dump(data_json, fp, indent=4, sort_keys=True)
             time_count += 1
             whole_time += time.time() - start_time
-            print("T{}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
-                self.turtlebot.indices, self.turtlebot.l_x * self.turtlebot.l_y * self.turtlebot.l_a,
+            turtlebot_index = sum([t_i * (self.turtlebot.l ** l_i)
+                                   for l_i, t_i in enumerate(self.turtlebot.indices)])
+            print("T{:4d}/{:4d}|Average Iteration Time: {:.5f} seconds".format(
+                    turtlebot_index, self.turtlebot.l ** len(self.turtlebot.indices),
                 whole_time / time_count))
 
     def initialize(self):

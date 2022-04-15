@@ -35,26 +35,33 @@ class Turtlebot():
         a_step = self.config["angle_step"]
 
         if x_max >= x_min:
-            self.x_coords = np.arange(x_min, x_max + s_step, s_step)
+            self.x_coords = np.arange(x_min, x_max + 1.0e-7, s_step)
         else:
-            self.x_coords = np.arange(x_min, x_max - s_step, -s_step)
+            self.x_coords = np.arange(x_min, x_max - 1.0e-7, -s_step)
 
         if y_max >= y_min:
-            self.y_coords = np.arange(y_min, y_max + s_step, s_step)
+            self.y_coords = np.arange(y_min, y_max + 1.0e-7, s_step)
         else:
-            self.y_coords = np.arange(y_min, y_max - s_step, -s_step)
+            self.y_coords = np.arange(y_min, y_max - 1.0e-7, -s_step)
 
         self.angles = list()
         for angle in np.arange(a_min, a_max, a_step):
             self.angles.append(angle)
             self.angles.append(angle + 180.0)
 
-        self.indices = self.config["initial_indices"]
         self.ports = self.config["ports"]
         self.master_ip = self.config["master_ip"]
         self.l_x = len(self.x_coords)
         self.l_y = len(self.y_coords)
         self.l_a = len(self.angles)
+        self.l = self.l_x * self.l_y * self.l_a
+        self.initialized = False
+
+        if self.num_turtlebots <= 1:
+            self.indices = [self.config["initial_indices"]]
+        else:
+            self.indices = [self.config["initial_indices"] % self.l,
+                            self.config["initial_indices"] // self.l]
 
     def step(self):
         # while True:
@@ -70,18 +77,18 @@ class Turtlebot():
         # self.move(x, y, a)
 
         if self.num_turtlebots >= 2:
-            if self.indices[1] <= 0:
+            if not self.initialized:
                 # Initialize the 2nd turtlebot
                 x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
                 y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
                 a = self.angles[-(self.indices[1] % self.l_a) - 1]
 
-                self.command(x, y + 1, a, port=self.ports[1])
+                self.command(x, y + 1.0, a, port=self.ports[1])
                 self.current_xs[1] = x
                 self.current_ys[1] = y
                 self.current_as[1] = a
 
-                self.indices[1] += 1
+                self.initialized = True
 
             # move the 1st turtlebot
             done = False
@@ -128,16 +135,15 @@ class Turtlebot():
                 self.command(x, y, a)
 
                 # move the 2nd turtlebot
+                self.indices[1] += 1
                 x = self.x_coords[-(self.indices[1] // (self.l_y * self.l_a)) - 1]
                 y = self.y_coords[-((self.indices[1] // self.l_a) % self.l_y) - 1]
                 a = self.angles[-(self.indices[1] % self.l_a) - 1]
 
-                self.command(x, y + 1, a, port=self.ports[1])
+                self.command(x, y + 1.0, a, port=self.ports[1])
                 self.current_xs[1] = x
                 self.current_ys[1] = y
                 self.current_as[1] = a
-
-                self.indices[1] += 1
 
                 # move the 1st turtlebot to the init point
                 x = self.x_coords[self.indices[0] // (self.l_y * self.l_a)]
@@ -158,7 +164,7 @@ class Turtlebot():
             y = self.y_coords[(self.indices[0] // (self.l_a)) % self.l_y]
             a = self.angles[self.indices[0] % self.l_a]
 
-            self.command(x, y, a)
+            self.command(x, y, a, port=self.ports[0])
             self.current_xs[0] = x
             self.current_ys[0] = y
             self.current_as[0] = a

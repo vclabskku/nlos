@@ -12,13 +12,13 @@ config["turtlebot_config"] = dict()
 ################################################################################
 config["data_config"]["root_folder"] = "d:\\2022"
 config["data_config"]["dst_folder"] = os.path.join(config["data_config"]["root_folder"],
-                                                   "T") # Modify this as the target name (e.g., P, P_B ...)
-config["turtlebot_config"]["num_turtlebots"] = 1
-config["turtlebot_config"]["initial_indices"] = 122
+                                                   "dummy") # Modify this as the target name (e.g., P, P_B ...)
+config["turtlebot_config"]["num_turtlebots"] = 2
+config["turtlebot_config"]["initial_indices"] = 0
 config["sensor_config"] = dict()
-config["sensor_config"]["use_laser"] = False
-config["sensor_config"]["use_rf"] = False
-config["sensor_config"]["use_sound"] = False
+config["sensor_config"]["use_laser"] = True
+config["sensor_config"]["use_rf"] = True
+config["sensor_config"]["use_sound"] = True
 config["data_config"]["log_folder"] = os.path.join(config["data_config"]["root_folder"], "log")
 ################################################################################
 # X: 0.6, -0.6
@@ -52,7 +52,7 @@ config["turtlebot_config"]["2"] = dict()
 # 3. turtlebot 2의 map 2 -> map1
 # 4. turtlebot command() function call 할때 single turtlebot 사용시 port 아규멘트 전달하는 인자 추가.
 
-turtlebot_reverse = True
+turtlebot_reverse = False
 if turtlebot_reverse:
     turtlebot_map = ["2", "1"]
 else:
@@ -89,7 +89,7 @@ config["roscore"][turtlebot_map[0]]["terminal_2"]["operation"] = "set Chocolatey
                                                     "c://opt//ros//melodic//x64//setup.bat && " \
                                                     "c://ws//turtlebot3//devel//setup.bat && " \
                                                     "set ROS_MASTER_URI=http://192.168.50.192:11311/ && " \
-                                                    "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c://ws//maps//map_01.yaml"
+                                                    "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c://ws//maps//map_0{}.yaml".format(turtlebot_map[0])
 config["roscore"][turtlebot_map[1]]["terminal_1"]["operation"] = "set ChocolateyInstall=c://opt//chocolatey && " \
                                                     "c://opt//ros//melodic//x64//setup.bat && " \
                                                     "c://ws//turtlebot3//devel//setup.bat && " \
@@ -98,7 +98,7 @@ config["roscore"][turtlebot_map[1]]["terminal_2"]["operation"] = "set Chocolatey
                                                     "c://opt//ros//melodic//x64//setup.bat && " \
                                                     "c://ws//turtlebot3//devel//setup.bat && " \
                                                     "set ROS_MASTER_URI=http://192.168.50.192:11312/ && " \
-                                                    "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c://ws//maps//map_02.yaml" # MAP 02 였음.
+                                                    "roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=c://ws//maps//map_0{}.yaml".format(turtlebot_map[1])
 
 #### Camera ID #####
 # DEV_000F310382ED (Reflection Low) #
@@ -137,7 +137,7 @@ config["galvanometer_config"]["voltage_range"] = [-10.0, 10.0]
 config["light_config"] = dict()
 # �޾�, ����, �޵�, ����
 # config["light_config"]["bulb_list"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
-config["light_config"]["bulb_list"] = ["192.168.50.61", "192.168.50.62", "192.168.50.39"]
+config["light_config"]["bulb_list"] = ["192.168.50.61", "192.168.50.62"]
 config["light_config"]["gt_brightness"] = 100
 config["light_config"]["laser_brightness"] = 1
 

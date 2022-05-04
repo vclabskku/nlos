@@ -46,13 +46,14 @@ if __name__ == '__main__':
     #config for light
     config = dict()
     # config["bulb_list"] = ["192.168.50.61", "192.168.50.62", "192.168.50.175", "192.168.50.39"]
-    config["bulb_list"] = ["192.168.50.61", "192.168.50.62", "192.168.50.39"]
+    # config["bulb_list"] = ["192.168.50.61", "192.168.50.62", "192.168.50.39"]
+    config["bulb_list"] = ["192.168.50.61", "192.168.50.62"]
     config["gt_brightness"] = 100
     config["laser_brightness"] = 0
     print(config)
     lo = Light(config)
-    lo.light_for_gt()
     # lo.light_for_laser()
+    lo.light_for_gt()
     # if sys.argv[1] == "gt":
     #     lo.light_for_gt()
     # elif sys.argv[1] == "laser":

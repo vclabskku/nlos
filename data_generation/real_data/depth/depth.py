@@ -233,6 +233,6 @@ if __name__ == "__main__":
     # b = depth.get_depth_image()
     a, b, c = depth.get_aligned_images()
     cv2.imwrite('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth/rgb_image.png', a)
-    cv2.imwrite('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth/depth_gray_image.png', b)
-    cv2.imwrite('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth/depth_color_image.png', c)
+    # cv2.imwrite('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth/depth_gray_image.png', b)
+    # cv2.imwrite('C:/Users/vclab/PycharmProjects/nlos/data_generation/real_data/depth/depth_color_image.png', c)
 

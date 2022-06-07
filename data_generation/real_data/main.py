@@ -12,9 +12,9 @@ config["turtlebot_config"] = dict()
 ################################################################################
 config["data_config"]["root_folder"] = "d:\\2022"
 config["data_config"]["dst_folder"] = os.path.join(config["data_config"]["root_folder"],
-                                                   "dummy") # Modify this as the target name (e.g., P, P_B ...)
+                                                   "B_G") # Modify this as the target name (e.g., P, P_B ...)
 config["turtlebot_config"]["num_turtlebots"] = 2
-config["turtlebot_config"]["initial_indices"] = 0
+config["turtlebot_config"]["initial_indices"] = 379
 config["sensor_config"] = dict()
 config["sensor_config"]["use_laser"] = True
 config["sensor_config"]["use_rf"] = True
@@ -52,7 +52,7 @@ config["turtlebot_config"]["2"] = dict()
 # 3. turtlebot 2의 map 2 -> map1
 # 4. turtlebot command() function call 할때 single turtlebot 사용시 port 아규멘트 전달하는 인자 추가.
 
-turtlebot_reverse = False
+turtlebot_reverse = True
 if turtlebot_reverse:
     turtlebot_map = ["2", "1"]
 else:

@@ -9,7 +9,6 @@ import psutil
 class Turtlebot():
 
     def __init__(self, config):
-
         self.config = config
 
         self.num_turtlebots = self.config["num_turtlebots"]
@@ -114,7 +113,7 @@ class Turtlebot():
 
             if not done:
                 # move the 1st turtlebot
-                self.command(x, y, a)
+                self.command(x, y, a, port=self.ports[0])
                 self.current_xs[0] = x
                 self.current_ys[0] = y
                 self.current_as[0] = a
@@ -132,7 +131,7 @@ class Turtlebot():
                 y = self.config["dummy_points"][1]
                 a = 0.0
 
-                self.command(x, y, a)
+                self.command(x, y, a, port=self.ports[0])
 
                 # move the 2nd turtlebot
                 self.indices[1] += 1
@@ -150,7 +149,7 @@ class Turtlebot():
                 y = self.y_coords[(self.indices[0] // (self.l_a)) % self.l_y]
                 a = self.angles[self.indices[0] % self.l_a]
 
-                self.command(x, y, a)
+                self.command(x, y, a, port=self.ports[0])
                 self.current_xs[0] = x
                 self.current_ys[0] = y
                 self.current_as[0] = a

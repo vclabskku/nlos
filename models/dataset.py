@@ -24,7 +24,7 @@ class NlosDataset(Dataset):
             raw_detection_meta_dict = json.load(fp)
 
         self.detection_meta_dict = dict()
-        if "2021" in config["data_folder"]:
+        if "2021" in config["dataset_folder"]:
             bad_list = ["D_M_D00000113", "D_M_D00000243", "D_M_D00000244", "D_M_D00000249"]
         else:
             bad_list = []
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     dataset_config["class_labels"] = ("Person", "Fire Extinguisher", "Dog")
     dataset_config["class_colors"] = ((0, 255, 0), (0, 0, 255), (255, 0, 0))
 
-    dataset_config["dataset_folder"] = os.path.join("/mnt/hdd1/nlos/aligned")
+    dataset_config["dataset_folder"] = os.path.join("/mnt/hdd1/NLOS/2021")
 
     # dataset_type = {"training", "validation"}
     dataset = NlosDataset(dataset_config, dataset_type="training")

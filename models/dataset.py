@@ -215,8 +215,8 @@ if __name__ == "__main__":
     dataset = NlosDataset(dataset_config, dataset_type="training")
 
     from torch.utils.data import DataLoader
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True,
-                            num_workers=1, drop_last=False,
+    dataloader = DataLoader(dataset, batch_size=256, shuffle=True,
+                            num_workers=48, drop_last=False,
                             pin_memory=True, prefetch_factor=2)
 
     for features, targets in dataloader:

@@ -24,9 +24,11 @@ class NlosDataset(Dataset):
             raw_detection_meta_dict = json.load(fp)
 
         self.detection_meta_dict = dict()
+        # Bad data list (invalid GT or data)
         if "2021" in config["dataset_folder"]:
             bad_list = ["D_M_D00000113", "D_M_D00000243", "D_M_D00000244", "D_M_D00000249",
-                        "F_D00000278"]
+                        "F_D00000278", "M_D00000042", "F_M_D00000268", "M_D00000090",
+                        "D_F_D00000372", "M_D00000091"]
         else:
             bad_list = []
 
@@ -64,6 +66,10 @@ class NlosDataset(Dataset):
         W, H = self.config["laser_size"]  # target laser image size for input
 
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
+        if one_frame is None:
+            print("Laser PNG Error: {}".format(data_folder))
+            return None, None
+
         l_H, l_W, _ = one_frame.shape
         h = int(round(l_H / 3)) # Naive pre-processing for cropping background
         try:
@@ -176,26 +182,6 @@ class NlosDataset(Dataset):
             if (split == 'True'): audio_stft.append(stft_channel)
 
         return torch.FloatTensor(np.asarray(audio_stft))
-
-    def _get_rf(self, idx):
-        rf = self.rf_data[idx]
-        if self.stack_avg > 1:
-            tmp_rf = []
-            mean_rf = torch.zeros((self.num_txrx * self.num_txrx, 1024 - self.cutoff))
-            for i in range(self.stack_avg):
-                raw_rf = self.raw_list[rf[i]]
-                mean_rf += raw_rf
-                if i >= self.stack_avg - self.frame_stack_num and i % self.frame_skip == self.frame_skip - 1:
-                    tmp_rf.append(raw_rf)
-            rf = torch.stack(tuple(tmp_rf), 0)
-            mean_rf /= self.stack_avg
-            mean_rf = mean_rf[None, :, :]
-            mean_rf = mean_rf.repeat(rf.shape[0], 1, 1)
-            rf -= mean_rf
-        else:
-            rf = self.raw_list[rf[-1]].unsqueeze(0)
-
-        return rf
 
 
 if __name__ == "__main__":

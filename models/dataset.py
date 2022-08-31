@@ -17,9 +17,9 @@ class NlosDataset(Dataset):
         self.dataset_type = dataset_type
 
         if dataset_type == "training":
-            detection_json_path = os.path.join(config["dataset_folder"], "bbox_train_combined.json")
+            detection_json_path = os.path.join(config["dataset_folder"], "bbox_train.json")
         else:
-            detection_json_path = os.path.join(config["dataset_folder"], "bbox_val_combined.json")
+            detection_json_path = os.path.join(config["dataset_folder"], "bbox_val.json")
         with open(detection_json_path, "r") as fp:
             raw_detection_meta_dict = json.load(fp)
 

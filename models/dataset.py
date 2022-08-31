@@ -75,7 +75,8 @@ class NlosDataset(Dataset):
         laser_images_01 = np.transpose(np.reshape(laser_images_01, (5, 5, H, W, 3)), (1, 0, 2, 3, 4))
         laser_images_02 = np.transpose(np.reshape(laser_images_02, (5, 5, H, W, 3)), (1, 0, 2, 3, 4))
 
-        laser_images = np.stack([laser_images_01, laser_images_02], axis=0).transpose((4, 0, 1, 2, 3))
+        # 3, 2, G_H, G_W, I_H, I_W
+        laser_images = np.stack([laser_images_01, laser_images_02], axis=0).transpose((6, 1, 2, 3, 4, 5))
 
         '''
         Load RF Data

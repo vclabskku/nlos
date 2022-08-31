@@ -62,6 +62,8 @@ class NlosDataset(Dataset):
 
         W, H = self.config["laser_size"]  # target laser image size for input
 
+        print(data_folder)
+        print("Laser")
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         l_H, l_W, _ = one_frame.shape
         h = int(round(l_H / 3)) # Naive pre-processing for cropping background
@@ -116,11 +118,10 @@ class NlosDataset(Dataset):
         '''
         Read RGB & Depth Images and Dection Annotions for GT
         '''
-        print(data_folder)
-        rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
         print("RGB")
-        depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
+        rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
         print("Depth")
+        depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
 
         laser_images = ((np.array(laser_images, dtype=np.float32) / 255.0) - 0.5) * 2.0
         rgb_image = np.array(rgb_image, dtype=np.float32) / 255.0

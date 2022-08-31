@@ -3,12 +3,15 @@ import numpy as np
 import torch
 import cv2
 import glob
+import librosa
+from einops import rearrange, reduce, repeat
 from torch.utils.data import Dataset
 
 
 class NlosDataset(Dataset):
 
     def __init__(self, config, dataset_type="training"):
+
         self.config = config
         self.dataset_type = dataset_type
 
@@ -27,9 +30,9 @@ class NlosDataset(Dataset):
         laser_images_01 = sorted(glob.glob(os.path.join(data_folder, "reflection_image_*_C01.png")))
         laser_images_02 = sorted(glob.glob(os.path.join(data_folder, "reflection_image_*_C02.png")))
 
-        W, H = self.config["laser_input_size"] # target laser image size for input
+        W, H = self.config["laser_input_size"]  # target laser image size for input
 
-        one_frame = cv2.imread(laser_images_01[0]) # to get original laser image size
+        one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         l_H, l_W, _ = one_frame.shape
         h = int(round(l_H / 3))
         laser_images_01 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_01]
@@ -45,6 +48,41 @@ class NlosDataset(Dataset):
         laser_images = np.stack([laser_images_01, laser_images_02], axis=0)
 
         '''
+        Load Sound Data
+        '''
+        sound_raw_data = np.load(os.path.join(data_folder, 'WAVE.npy'))
+        sound_data = self._waveform_to_stft(sound_raw_data, split=False, n_fft=512, win_length=64)
+
+        '''
+        Load RF Data
+        '''
+        rf_data = list()
+        rf_file_list = sorted(glob.glob(os.path.join(data_folder, "RF_*.npy")))  # RF_0, ..., RF_19
+        for rf in rf_file_list:  # rf npy load
+            temp_raw_rf = np.load(rf)
+            temp_raw_rf = temp_raw_rf[:, :, 200:-312]
+
+            # ----- normalization ------
+            for i in range(temp_raw_rf.shape[0]):
+                for j in range(temp_raw_rf.shape[1]):
+                    stdev = np.std(temp_raw_rf[i, j])
+                    mean = np.mean(temp_raw_rf[i, j])
+                    temp_raw_rf[i, j] = (temp_raw_rf[i, j] - mean) / stdev
+
+            temp_raw_rf = torch.tensor(temp_raw_rf).float()
+            # ---------- Convert to 2D -----------
+
+            temp_raw_rf = rearrange(temp_raw_rf, 'tx rx len -> (tx rx) len')
+            # print(temp_raw_rf.shape)
+            temp_raw_rf = rearrange(temp_raw_rf, '(x y) len -> x y len', x=4)
+            # print(temp_raw_rf.shape)
+            temp_raw_rf = rearrange(temp_raw_rf, 'x y (len1 len2) -> x (len1 y) len2', len2=128)
+            # print(temp_raw_rf.shape)
+
+            rf_data.append(temp_raw_rf)
+        rf_data = torch.stack(rf_data, dim=0).mean(dim=0)
+
+        '''
         Read RGB & Depth Images and Dection Annotions for GT
         '''
 
@@ -55,27 +93,70 @@ class NlosDataset(Dataset):
         rgb_image = np.array(rgb_image, dtype=np.float32) / 255.0
         depth_image = np.array(depth_image, dtype=np.float32) / 255.0
 
+        # number of instances, GT data
+        # Maximum number of instances is 2
         detection_gt = np.zeros(dtype=np.float32, shape=(2, 6))
         rgb_h, rgb_w, _ = rgb_image.shape
-        depth_h, depth_w = depth_image.shape
         gt_annos = self.dataset.detection_meta_dict[os.path.basename(data_folder)]
         for a_i, anno in enumerate(gt_annos):
             bbox = anno["bbox"]
             bbox = [bbox[0] / rgb_w, bbox[1] / rgb_h,
                     bbox[0] / rgb_w + bbox[2] / rgb_w,
                     bbox[1] / rgb_h + bbox[3] / rgb_h]
-            class_id = float(anno["category_id"]) - 1.0
-            detection_gt[a_i] = np.array([1.0] + bbox + [class_id], dtype=np.float32)
+            class_id = float(anno["category_id"]) - 1.0 # change 1-base to 0-base
+            valid_flag = 1.0 # this indicates this GT information is valid (for 1 instance case, second GT is invalid)
+            # GT format: valid_flag, topleft_x, topleft_y, bottomright_x, bottomright_y, class_id
+            detection_gt[a_i] = np.array([valid_flag] + bbox + [class_id], dtype=np.float32)
 
-            ratio = 0.1
-            t_l = [np.minimum(bbox[0] * depth_w * (1.0 - ratio), depth_w),
-                   np.minimum(bbox[1] * depth_h * (1.0 - ratio), depth_h)]
-            t_l = np.array(np.round(t_l), dtype=np.int32)
-            b_r = [np.minimum(bbox[2] * depth_w * (1.0 + ratio), depth_w),
-                   np.minimum(bbox[3] * depth_h * (1.0 + ratio), depth_h)]
-            b_r = np.array(np.round(b_r), dtype=np.int32)
+        laser_images = torch.from_array(laser_images)
+        rgb_image = torch.from_array(rgb_image)
+        depth_image = torch.from_array(depth_image)
+        detection_gt = torch.from_array(detection_gt)
 
-        return laser_images, rgb_image, depth_image, detection_gt
+        features = (laser_images, sound_data, rf_data)
+        targets = (rgb_image, depth_image, detection_gt)
+
+        return features, targets
+
+    def _waveform_to_stft(self, audio_waveform, split, n_fft=512, win_length=32):
+        audio_waveform = np.moveaxis(audio_waveform, [0, 1, 2], [0, 2, 1])
+
+        audio_stft = []
+
+        for x in range(audio_waveform.shape[0]):  # audio_waveform.shape[0]
+            stft_channel = []
+            for y in range(audio_waveform.shape[1]):  # audio_waveform.shape[1]
+                temp = audio_waveform[x][y]  # [4500:14401]
+                temp = librosa.stft(temp, n_fft=n_fft, win_length=win_length, center=False)
+                if (split == 'True'):
+                    stft_channel.append(np.abs(temp))
+                elif (split == 'False'):
+                    audio_stft.append(np.abs(temp))
+                else:
+                    print('split not defined')
+            if (split == 'True'): audio_stft.append(stft_channel)
+
+        return torch.FloatTensor(np.asarray(audio_stft))
+
+    def _get_rf(self, idx):
+        rf = self.rf_data[idx]
+        if self.stack_avg > 1:
+            tmp_rf = []
+            mean_rf = torch.zeros((self.num_txrx * self.num_txrx, 1024 - self.cutoff))
+            for i in range(self.stack_avg):
+                raw_rf = self.raw_list[rf[i]]
+                mean_rf += raw_rf
+                if i >= self.stack_avg - self.frame_stack_num and i % self.frame_skip == self.frame_skip - 1:
+                    tmp_rf.append(raw_rf)
+            rf = torch.stack(tuple(tmp_rf), 0)
+            mean_rf /= self.stack_avg
+            mean_rf = mean_rf[None, :, :]
+            mean_rf = mean_rf.repeat(rf.shape[0], 1, 1)
+            rf -= mean_rf
+        else:
+            rf = self.raw_list[rf[-1]].unsqueeze(0)
+
+        return rf
 
 
 if __name__ == "__main__":
@@ -93,3 +174,20 @@ if __name__ == "__main__":
 
     # dataset_type = {"training", "validation"}
     dataset = NlosDataset(dataset_config, dataset_type="training")
+
+    from torch.utils.data import DataLoader
+    dataloader = DataLoader(dataset, batch_size=64, shuffle=True,
+                            num_workers=12, drop_last=False,
+                            pin_memory=True, prefetch_factor=2)
+
+    for features, targets in dataloader:
+        laser_images, sound_data, rf_data = features
+        rgb_image, depth_image, detection_gt = targets
+
+        print(laser_images.shape)
+        print(sound_data.shape)
+        print(rf_data.shape)
+
+        print(rgb_image.shape)
+        print(depth_image.shape)
+        print(detection_gt.shape)

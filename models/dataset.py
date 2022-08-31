@@ -116,11 +116,9 @@ class NlosDataset(Dataset):
         '''
         Read RGB & Depth Images and Dection Annotions for GT
         '''
-        try:
-            rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
-            depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
-        except:
-            print(data_folder)
+        rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
+        depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
+        print(data_folder)
 
         laser_images = ((np.array(laser_images, dtype=np.float32) / 255.0) - 0.5) * 2.0
         rgb_image = np.array(rgb_image, dtype=np.float32) / 255.0
@@ -207,8 +205,8 @@ if __name__ == "__main__":
     dataset = NlosDataset(dataset_config, dataset_type="training")
 
     from torch.utils.data import DataLoader
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True,
-                            num_workers=12, drop_last=False,
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True,
+                            num_workers=1, drop_last=False,
                             pin_memory=True, prefetch_factor=2)
 
     for features, targets in dataloader:
@@ -222,5 +220,3 @@ if __name__ == "__main__":
         print(rgb_image.shape)
         print(depth_image.shape)
         print(detection_gt.shape)
-
-        exit()

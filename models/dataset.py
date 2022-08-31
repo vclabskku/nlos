@@ -216,10 +216,10 @@ if __name__ == "__main__":
         laser_images, rf_data, sound_data = features
         rgb_image, depth_image, detection_gt = targets
 
-        print(laser_images.shape)
-        print(rf_data.shape)
-        print(sound_data.shape)
-
-        print(rgb_image.shape)
-        print(depth_image.shape)
-        print(detection_gt.shape)
+        # print(laser_images.shape)
+        # print(rf_data.shape)
+        # print(sound_data.shape)
+        #
+        # print(rgb_image.shape)
+        # print(depth_image.shape)
+        # print(detection_gt.shape)

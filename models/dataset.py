@@ -60,7 +60,7 @@ class NlosDataset(Dataset):
         laser_images_01 = sorted(glob.glob(os.path.join(data_folder, "reflection_image_*_C01.png")))
         laser_images_02 = sorted(glob.glob(os.path.join(data_folder, "reflection_image_*_C02.png")))
 
-        W, H = self.config["laser_input_size"]  # target laser image size for input
+        W, H = self.config["laser_size"]  # target laser image size for input
 
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         l_H, l_W, _ = one_frame.shape

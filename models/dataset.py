@@ -75,8 +75,8 @@ class NlosDataset(Dataset):
         laser_images_01 = np.transpose(np.reshape(laser_images_01, (5, 5, H, W, 3)), (1, 0, 2, 3, 4))
         laser_images_02 = np.transpose(np.reshape(laser_images_02, (5, 5, H, W, 3)), (1, 0, 2, 3, 4))
 
-        # 3, 2, G_H, G_W, I_H, I_W
-        laser_images = np.stack([laser_images_01, laser_images_02], axis=0).transpose((6, 1, 2, 3, 4, 5))
+        # 2, G_H, G_W, I_H, I_W, 3
+        laser_images = np.stack([laser_images_01, laser_images_02], axis=0)
 
         '''
         Load RF Data
@@ -105,13 +105,13 @@ class NlosDataset(Dataset):
             # print(temp_raw_rf.shape)
 
             rf_data.append(temp_raw_rf)
-        rf_data = torch.stack(rf_data, dim=0).mean(dim=0)
+        rf_data = torch.stack(rf_data, dim=0).mean(dim=0).permute(1, 2, 0)
 
         '''
         Load Sound Data
         '''
         sound_raw_data = np.load(os.path.join(data_folder, 'WAVE.npy'))
-        sound_data = self._waveform_to_stft(sound_raw_data)
+        sound_data = self._waveform_to_stft(sound_raw_data).permute(1, 2, 0)
 
         '''
         Read RGB & Depth Images and Dection Annotions for GT

@@ -17,9 +17,9 @@ class NlosDataset(Dataset):
         self.dataset_type = dataset_type
 
         if dataset_type == "training":
-            detection_json_path = os.path.join(config["data_folder"], "bbox_train_combined.json")
+            detection_json_path = os.path.join(config["dataset_folder"], "bbox_train_combined.json")
         else:
-            detection_json_path = os.path.join(config["data_folder"], "bbox_val_combined.json")
+            detection_json_path = os.path.join(config["dataset_folder"], "bbox_val_combined.json")
         with open(detection_json_path, "r") as fp:
             raw_detection_meta_dict = json.load(fp)
 
@@ -44,7 +44,7 @@ class NlosDataset(Dataset):
                 print("Data Load Error: Folder {} has {} instances".format(folder_name,
                                                                            len(self.detection_meta_dict[folder_name])))
 
-        raw_folders = sorted(glob.glob(os.path.join(config["data_folder"], dataset_type, "*D*")))
+        raw_folders = sorted(glob.glob(os.path.join(config["dataset_folder"], dataset_type, "*D*")))
         self.folders = [f for f in raw_folders if os.path.basename(f) not in bad_list]
         print("Making Train Dataset Object ... {} Instances".format(len(self.folders)))
 

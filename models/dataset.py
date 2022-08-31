@@ -116,9 +116,9 @@ class NlosDataset(Dataset):
         '''
         Read RGB & Depth Images and Dection Annotions for GT
         '''
+        print(data_folder)
         rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
         depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
-        print(data_folder)
 
         laser_images = ((np.array(laser_images, dtype=np.float32) / 255.0) - 0.5) * 2.0
         rgb_image = np.array(rgb_image, dtype=np.float32) / 255.0

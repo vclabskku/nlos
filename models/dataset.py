@@ -158,12 +158,10 @@ class NlosDataset(Dataset):
             for y in range(audio_waveform.shape[1]):  # audio_waveform.shape[1]
                 temp = audio_waveform[x][y]  # [4500:14401]
                 temp = librosa.stft(temp, n_fft=n_fft, win_length=win_length, center=False)
-                if (split == 'True'):
+                if split:
                     stft_channel.append(np.abs(temp))
-                elif (split == 'False'):
-                    audio_stft.append(np.abs(temp))
                 else:
-                    print('split not defined')
+                    audio_stft.append(np.abs(temp))
             if (split == 'True'): audio_stft.append(stft_channel)
 
         return torch.FloatTensor(np.asarray(audio_stft))

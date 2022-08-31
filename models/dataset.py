@@ -81,7 +81,7 @@ class NlosDataset(Dataset):
         Load Sound Data
         '''
         sound_raw_data = np.load(os.path.join(data_folder, 'WAVE.npy'))
-        sound_data = self._waveform_to_stft(sound_raw_data, split=False, n_fft=512, win_length=64)
+        sound_data = self._waveform_to_stft(sound_raw_data)
 
         '''
         Load RF Data
@@ -148,7 +148,7 @@ class NlosDataset(Dataset):
 
         return features, targets
 
-    def _waveform_to_stft(self, audio_waveform, split, n_fft=512, win_length=32):
+    def _waveform_to_stft(self, audio_waveform, split=False, n_fft=512, win_length=64):
         audio_waveform = np.moveaxis(audio_waveform, [0, 1, 2], [0, 2, 1])
 
         audio_stft = []

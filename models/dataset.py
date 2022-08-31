@@ -64,7 +64,7 @@ class NlosDataset(Dataset):
 
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         l_H, l_W, _ = one_frame.shape
-        h = int(round(l_H / 3))
+        h = int(round(l_H / 3)) # Naive pre-processing for cropping
         laser_images_01 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_01]
         laser_images_02 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_02]
 
@@ -138,10 +138,10 @@ class NlosDataset(Dataset):
             # GT format: valid_flag, topleft_x, topleft_y, bottomright_x, bottomright_y, class_id
             detection_gt[a_i] = np.array([valid_flag] + bbox + [class_id], dtype=np.float32)
 
-        laser_images = torch.from_array(laser_images)
-        rgb_image = torch.from_array(rgb_image)
-        depth_image = torch.from_array(depth_image)
-        detection_gt = torch.from_array(detection_gt)
+        laser_images = torch.from_numpy(laser_images)
+        rgb_image = torch.from_numpy(rgb_image)
+        depth_image = torch.from_numpy(depth_image)
+        detection_gt = torch.from_numpy(detection_gt)
 
         features = (laser_images, sound_data, rf_data)
         targets = (rgb_image, depth_image, detection_gt)

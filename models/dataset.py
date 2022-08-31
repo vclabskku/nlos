@@ -64,7 +64,7 @@ class NlosDataset(Dataset):
 
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         l_H, l_W, _ = one_frame.shape
-        h = int(round(l_H / 3)) # Naive pre-processing for cropping
+        h = int(round(l_H / 3)) # Naive pre-processing for cropping background
         laser_images_01 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_01]
         laser_images_02 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_02]
 

@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import cv2
 import glob
+import json
 import librosa
 from einops import rearrange, reduce, repeat
 from torch.utils.data import Dataset
@@ -15,7 +16,36 @@ class NlosDataset(Dataset):
         self.config = config
         self.dataset_type = dataset_type
 
-        self.folders = sorted(glob.glob(os.path.join(config["data_folder"], dataset_type, "*D*")))
+        if dataset_type == "training":
+            detection_json_path = os.path.join(config["data_folder"], "bbox_train_combined.json")
+        else:
+            detection_json_path = os.path.join(config["data_folder"], "bbox_val_combined.json")
+        with open(detection_json_path, "r") as fp:
+            raw_detection_meta_dict = json.load(fp)
+
+        self.detection_meta_dict = dict()
+        if "2021" in config["data_folder"]:
+            bad_list = ["D_M_D00000113", "D_M_D00000243", "D_M_D00000244", "D_M_D00000249"]
+        else:
+            bad_list = []
+
+        for anno in raw_detection_meta_dict["annotations"]:
+            folder_name = raw_detection_meta_dict["image_groups"][anno["image_group_id"] - 1]["group_name"]
+
+            if folder_name in bad_list:
+                continue
+
+            if folder_name not in self.detection_meta_dict:
+                self.detection_meta_dict[folder_name] = [anno]
+            else:
+                self.detection_meta_dict[folder_name].append(anno)
+
+            if len(self.detection_meta_dict[folder_name]) >= 3 or len(self.detection_meta_dict[folder_name]) <= 0:
+                print("Data Load Error: Folder {} has {} instances".format(folder_name,
+                                                                           len(self.detection_meta_dict[folder_name])))
+
+        raw_folders = sorted(glob.glob(os.path.join(config["data_folder"], dataset_type, "*D*")))
+        self.folders = [f for f in raw_folders if os.path.basename(f) not in bad_list]
         print("Making Train Dataset Object ... {} Instances".format(len(self.folders)))
 
     def __len__(self):

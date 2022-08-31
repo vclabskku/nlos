@@ -25,7 +25,8 @@ class NlosDataset(Dataset):
 
         self.detection_meta_dict = dict()
         if "2021" in config["dataset_folder"]:
-            bad_list = ["D_M_D00000113", "D_M_D00000243", "D_M_D00000244", "D_M_D00000249"]
+            bad_list = ["D_M_D00000113", "D_M_D00000243", "D_M_D00000244", "D_M_D00000249",
+                        "F_D00000278"]
         else:
             bad_list = []
 
@@ -62,13 +63,15 @@ class NlosDataset(Dataset):
 
         W, H = self.config["laser_size"]  # target laser image size for input
 
-        print(data_folder)
-        print("Laser")
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         l_H, l_W, _ = one_frame.shape
         h = int(round(l_H / 3)) # Naive pre-processing for cropping background
-        laser_images_01 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_01]
-        laser_images_02 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_02]
+        try:
+            laser_images_01 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_01]
+            laser_images_02 = [np.transpose(cv2.imread(path)[:-h], (1, 0, 2))[:, ::-1] for path in laser_images_02]
+        except TypeError:
+            print("Laser PNG Error: {}".format(data_folder))
+            return None, None
 
         laser_images_01 = [cv2.resize(image, (W, H)) for image in laser_images_01]
         laser_images_02 = [cv2.resize(image, (W, H)) for image in laser_images_02]
@@ -118,10 +121,14 @@ class NlosDataset(Dataset):
         '''
         Read RGB & Depth Images and Dection Annotions for GT
         '''
-        print("RGB")
         rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
-        print("Depth")
+        if rgb_image is None:
+            print("RGB PNG Error: {}".format(data_folder))
+            return None, None
         depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
+        if depth_image is None:
+            print("Depth PNG Error: {}".format(data_folder))
+            return None, None
 
         laser_images = ((np.array(laser_images, dtype=np.float32) / 255.0) - 0.5) * 2.0
         rgb_image = np.array(rgb_image, dtype=np.float32) / 255.0
@@ -213,8 +220,9 @@ if __name__ == "__main__":
                             pin_memory=True, prefetch_factor=2)
 
     for features, targets in dataloader:
-        laser_images, rf_data, sound_data = features
-        rgb_image, depth_image, detection_gt = targets
+        pass
+        # laser_images, rf_data, sound_data = features
+        # rgb_image, depth_image, detection_gt = targets
 
         # print(laser_images.shape)
         # print(rf_data.shape)

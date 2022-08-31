@@ -219,3 +219,5 @@ if __name__ == "__main__":
         print(rgb_image.shape)
         print(depth_image.shape)
         print(detection_gt.shape)
+
+        exit()

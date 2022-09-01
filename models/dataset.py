@@ -38,7 +38,6 @@ class NlosDataset(Dataset):
 
         for anno in raw_detection_meta_dict["annotations"]:
             folder_name = raw_detection_meta_dict["image_groups"][anno["image_group_id"] - 1]["group_name"]
-            print(folder_name)
             if folder_name in bad_list:
                 continue
 
@@ -148,9 +147,10 @@ class NlosDataset(Dataset):
         # Maximum number of instances is 2
         detection_gt = np.zeros(dtype=np.float32, shape=(2, 6))
         rgb_h, rgb_w, _ = rgb_image.shape
-        gt_annos = self.detection_meta_dict[os.path.basename(data_folder)]
-        # except KeyError:
-        #     gt_annos = self.detection_meta_dict[os.path.basename(data_folder).replace("_D0", "/D0")]
+        try:
+            gt_annos = self.detection_meta_dict[os.path.basename(data_folder)]
+        except KeyError:
+            gt_annos = self.detection_meta_dict[os.path.basename(data_folder).replace("_D0", "/D0")]
         for a_i, anno in enumerate(gt_annos):
             bbox = anno["bbox"]
             bbox = [bbox[0] / rgb_w, bbox[1] / rgb_h,

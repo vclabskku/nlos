@@ -38,7 +38,7 @@ class NlosDataset(Dataset):
 
         for anno in raw_detection_meta_dict["annotations"]:
             folder_name = raw_detection_meta_dict["image_groups"][anno["image_group_id"] - 1]["group_name"]
-
+            print(folder_name)
             if folder_name in bad_list:
                 continue
 

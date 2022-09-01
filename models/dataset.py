@@ -193,15 +193,8 @@ class NlosDataset(Dataset):
 if __name__ == "__main__":
     dataset_config = dict()
     # original laser input full size: 1936 x 1216
-    dataset_config["laser_size"] = (64, 128)  # W, H
-    dataset_config["rgb_size"] = (1280, 720)  # W, H
-    dataset_config["depth_size"] = (1280, 720)  # W, H
-
-    dataset_config["num_classes"] = 3
-    dataset_config["class_labels"] = ("Person", "Fire Extinguisher", "Dog")
-    dataset_config["class_colors"] = ((0, 255, 0), (0, 0, 255), (255, 0, 0))
-
-    dataset_config["dataset_folder"] = os.path.join("/mnt/hdd0/NLOS/2021")
+    dataset_config["laser_size"] = (64, 128)  # W, H, which is the target size for input
+    dataset_config["dataset_folder"] = os.path.join("/mnt/hdd0/NLOS/2022")
 
     # dataset_type = {"training", "validation"}
     dataset = NlosDataset(dataset_config, dataset_type="training")

@@ -195,8 +195,8 @@ if __name__ == "__main__":
 
     from torch.utils.data import DataLoader
     from tqdm import tqdm
-    dataloader = DataLoader(dataset, batch_size=16, shuffle=True,
-                            num_workers=16, drop_last=False,
+    dataloader = DataLoader(dataset, batch_size=2, shuffle=True,
+                            num_workers=2, drop_last=False,
                             pin_memory=True, prefetch_factor=2)
 
     for features, targets in tqdm(dataloader):

@@ -199,7 +199,7 @@ if __name__ == "__main__":
     dataset_config["class_labels"] = ("Person", "Fire Extinguisher", "Dog")
     dataset_config["class_colors"] = ((0, 255, 0), (0, 0, 255), (255, 0, 0))
 
-    dataset_config["dataset_folder"] = os.path.join("/mnt/hdd0/NLOS/2021")
+    dataset_config["dataset_folder"] = os.path.join("/mnt/hdd0/NLOS/2022")
 
     # dataset_type = {"training", "validation"}
     dataset = NlosDataset(dataset_config, dataset_type="training")

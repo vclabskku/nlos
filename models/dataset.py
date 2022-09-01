@@ -205,11 +205,12 @@ if __name__ == "__main__":
     dataset = NlosDataset(dataset_config, dataset_type="training")
 
     from torch.utils.data import DataLoader
+    from tqdm import tqdm
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True,
                             num_workers=12, drop_last=False,
                             pin_memory=True, prefetch_factor=2)
 
-    for features, targets in dataloader:
+    for features, targets in tqdm(dataloader):
         pass
         # laser_images, rf_data, sound_data = features
         # rgb_image, depth_image, detection_gt = targets

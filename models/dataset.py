@@ -148,7 +148,12 @@ class NlosDataset(Dataset):
         # Maximum number of instances is 2
         detection_gt = np.zeros(dtype=np.float32, shape=(2, 6))
         rgb_h, rgb_w, _ = rgb_image.shape
-        gt_annos = self.detection_meta_dict[os.path.basename(data_folder)]
+        try:
+            gt_annos = self.detection_meta_dict[os.path.basename(data_folder)]
+        except KeyError:
+            key = os.path.basename(data_folder)
+            key = key[0] + "_" + key[2:]
+            gt_annos = self.detection_meta_dict[key]
         for a_i, anno in enumerate(gt_annos):
             bbox = anno["bbox"]
             bbox = [bbox[0] / rgb_w, bbox[1] / rgb_h,

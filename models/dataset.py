@@ -191,7 +191,7 @@ if __name__ == "__main__":
     dataset_config["dataset_folder"] = os.path.join("/mnt/hdd0/NLOS/2022")
 
     # dataset_type = {"training", "validation"}
-    dataset = NlosDataset(dataset_config, dataset_type="validation")
+    dataset = NlosDataset(dataset_config, dataset_type="training")
 
     from torch.utils.data import DataLoader
     from tqdm import tqdm

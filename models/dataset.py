@@ -89,36 +89,45 @@ class NlosDataset(Dataset):
         '''
         Load RF Data
         '''
-        rf_data = list()
-        rf_file_list = sorted(glob.glob(os.path.join(data_folder, "RF_*.npy")))  # RF_0, ..., RF_19
-        for rf in rf_file_list:  # rf npy load
-            temp_raw_rf = np.load(rf)
-            temp_raw_rf = temp_raw_rf[:, :, 200:-312]
+        try:
+            rf_data = list()
+            rf_file_list = sorted(glob.glob(os.path.join(data_folder, "RF_*.npy")))  # RF_0, ..., RF_19
+            for rf in rf_file_list:  # rf npy load
+                temp_raw_rf = np.load(rf)
+                temp_raw_rf = temp_raw_rf[:, :, 200:-312]
 
-            # ----- normalization ------
-            for i in range(temp_raw_rf.shape[0]):
-                for j in range(temp_raw_rf.shape[1]):
-                    stdev = np.std(temp_raw_rf[i, j])
-                    mean = np.mean(temp_raw_rf[i, j])
-                    temp_raw_rf[i, j] = (temp_raw_rf[i, j] - mean) / stdev
+                # ----- normalization ------
+                for i in range(temp_raw_rf.shape[0]):
+                    for j in range(temp_raw_rf.shape[1]):
+                        stdev = np.std(temp_raw_rf[i, j])
+                        mean = np.mean(temp_raw_rf[i, j])
+                        temp_raw_rf[i, j] = (temp_raw_rf[i, j] - mean) / stdev
 
-            temp_raw_rf = torch.tensor(temp_raw_rf).float()
-            # ---------- Convert to 2D -----------
+                temp_raw_rf = torch.tensor(temp_raw_rf).float()
+                # ---------- Convert to 2D -----------
 
-            temp_raw_rf = rearrange(temp_raw_rf, 'tx rx len -> (tx rx) len')
-            # print(temp_raw_rf.shape)
-            temp_raw_rf = rearrange(temp_raw_rf, '(x y) len -> x y len', x=4)
-            # print(temp_raw_rf.shape)
-            temp_raw_rf = rearrange(temp_raw_rf, 'x y (len1 len2) -> x (len1 y) len2', len2=128)
-            # print(temp_raw_rf.shape)
+                temp_raw_rf = rearrange(temp_raw_rf, 'tx rx len -> (tx rx) len')
+                # print(temp_raw_rf.shape)
+                temp_raw_rf = rearrange(temp_raw_rf, '(x y) len -> x y len', x=4)
+                # print(temp_raw_rf.shape)
+                temp_raw_rf = rearrange(temp_raw_rf, 'x y (len1 len2) -> x (len1 y) len2', len2=128)
+                # print(temp_raw_rf.shape)
 
-            rf_data.append(temp_raw_rf)
-        rf_data = torch.stack(rf_data, dim=0).mean(dim=0).permute(1, 2, 0)
+                rf_data.append(temp_raw_rf)
+            rf_data = torch.stack(rf_data, dim=0).mean(dim=0).permute(1, 2, 0)
+        except:
+            print("RF Input Error: {}".format(data_folder))
+            return None, None
 
         '''
         Load Sound Data
         '''
-        sound_raw_data = np.load(os.path.join(data_folder, 'WAVE.npy'))
+        try:
+            sound_raw_data = np.load(os.path.join(data_folder, 'WAVE.npy'))
+        except:
+            print("Sound Input Error: {}".format(data_folder))
+            return None, None
+
         sound_data = self._waveform_to_stft(sound_raw_data).permute(1, 2, 0)
 
         '''

@@ -28,7 +28,7 @@ class NlosDataset(Dataset):
         if "2021" in config["dataset_folder"]:
             bad_list = ["D_M_D00000113", "D_M_D00000243", "D_M_D00000244", "D_M_D00000249"]
         else:
-            bad_list = []
+            bad_list = ["T_B_D00000501", "P_B_D00000379", ]
 
         for anno in raw_detection_meta_dict["annotations"]:
             folder_name = raw_detection_meta_dict["image_groups"][anno["image_group_id"] - 1]["group_name"]
@@ -65,7 +65,7 @@ class NlosDataset(Dataset):
         one_frame = cv2.imread(laser_images_01[0])  # to get original laser image size
         if one_frame is None:
             print("Laser PNG Error: {}".format(data_folder))
-            return None, None
+            return torch.zeros(size=(1, )), torch.zeros(size=(1, ))
 
         l_H, l_W, _ = one_frame.shape
         h = int(round(l_H / 3)) # Naive pre-processing for cropping background
@@ -117,7 +117,7 @@ class NlosDataset(Dataset):
             rf_data = torch.stack(rf_data, dim=0).mean(dim=0).permute(1, 2, 0)
         except:
             print("RF Input Error: {}".format(data_folder))
-            return None, None
+            return torch.zeros(size=(1, )), torch.zeros(size=(1, ))
 
         '''
         Load Sound Data
@@ -126,7 +126,7 @@ class NlosDataset(Dataset):
             sound_raw_data = np.load(os.path.join(data_folder, 'WAVE.npy'))
         except:
             print("Sound Input Error: {}".format(data_folder))
-            return None, None
+            return torch.zeros(size=(1, )), torch.zeros(size=(1, ))
 
         sound_data = self._waveform_to_stft(sound_raw_data).permute(1, 2, 0)
 
@@ -136,11 +136,11 @@ class NlosDataset(Dataset):
         rgb_image = cv2.imread(os.path.join(data_folder, "gt_rgb_image.png"))
         if rgb_image is None:
             print("RGB PNG Error: {}".format(data_folder))
-            return None, None
+            return torch.zeros(size=(1, )), torch.zeros(size=(1, ))
         depth_image = cv2.imread(os.path.join(data_folder, "gt_depth_gray_image.png"), cv2.IMREAD_GRAYSCALE)
         if depth_image is None:
             print("Depth PNG Error: {}".format(data_folder))
-            return None, None
+            return torch.zeros(size=(1, )), torch.zeros(size=(1, ))
 
         laser_images = ((np.array(laser_images, dtype=np.float32) / 255.0) - 0.5) * 2.0
         rgb_image = np.array(rgb_image, dtype=np.float32) / 255.0

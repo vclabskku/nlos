@@ -31,7 +31,8 @@ class NlosDataset(Dataset):
             bad_list = ["T_B_D00000501", "P_B_D00000379", ]
 
         for anno in raw_detection_meta_dict["annotations"]:
-            folder_name = raw_detection_meta_dict["image_groups"][anno["image_group_id"] - 1]["group_name"]
+            folder_name = raw_detection_meta_dict["image_groups"][
+                anno["image_group_id"] - 1 * int("2021" in config["dataset_folder"])]["group_name"]
             if folder_name in bad_list:
                 continue
 

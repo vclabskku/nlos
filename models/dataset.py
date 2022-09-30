@@ -160,7 +160,7 @@ class NlosDataset(Dataset):
             bbox = [bbox[0] / rgb_w, bbox[1] / rgb_h,
                     bbox[0] / rgb_w + bbox[2] / rgb_w,
                     bbox[1] / rgb_h + bbox[3] / rgb_h]
-            class_id = float(anno["category_id"]) - 1.0 # change 1-base to 0-base
+            class_id = float(anno["category_id"]) - 1.0 * float("2021" in self.config["dataset_folder"])
             valid_flag = 1.0 # this indicates this GT information is valid (for 1 instance case, second GT is invalid)
             # GT format: valid_flag, topleft_x, topleft_y, bottomright_x, bottomright_y, class_id
             detection_gt[a_i] = np.array([valid_flag] + bbox + [class_id], dtype=np.float32)
